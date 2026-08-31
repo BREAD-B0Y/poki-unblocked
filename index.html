@@ -3,277 +3,202 @@
 <head>
 <title>Games</title>
 <style>
-body { background: #667eea; color: white; font-family: Arial; padding: 20px; text-align: center; }
-h1 { margin-bottom: 30px; }
-.game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; }
-.game-card { background: white; color: #333; padding: 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-.game-card:hover { background: #f0f0f0; }
-#canvas { background: black; display: block; margin: 20px auto; border: 2px solid white; }
-#info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px; }
+body { background: #667eea; color: white; font-family: Arial; padding: 20px; text-align: center; margin: 0; }
+h1 { margin: 0 0 30px 0; }
+.menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; }
+.card { background: white; color: #333; padding: 20px; border-radius: 10px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block; width: 100%; font-size: 14px; }
+.card:hover { background: #f0f0f0; }
+.game-page { display: none; }
+.game-page:target { display: block; }
+#menu { display: block; }
+#menu:target { display: none; }
+canvas { background: black; display: block; margin: 20px auto; border: 2px solid white; max-width: 100%; }
+.info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px; }
+a.back { color: white; text-decoration: none; margin-top: 20px; display: inline-block; padding: 10px 20px; background: rgba(0,0,0,0.3); border-radius: 5px; }
+a.back:hover { background: rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
-<h1>🎮 Games</h1>
-<div class="game-grid" id="menu">
-<div class="game-card" onclick="startSnake()">🐍 Snake</div>
-<div class="game-card" onclick="startFlappy()">🐦 Flappy</div>
-<div class="game-card" onclick="startPong()">🏓 Pong</div>
-<div class="game-card" onclick="startTag()">🏃 Tag</div>
-</div>
-<canvas id="canvas" width="400" height="400" style="display:none;"></canvas>
-<div id="info"></div>
 
-<script>
-let gameState = null;
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const info = document.getElementById('info');
+<div id="menu">
+<h1>🎮 Games</h1>
+<div class="menu">
+<a href="#snake" class="card">🐍 Snake</a>
+<a href="#flappy" class="card">🐦 Flappy</a>
+<a href="#pong" class="card">🏓 Pong</a>
+<a href="#tag" class="card">🏃 Tag</a>
+</div>
+</div>
+
+<div id="snake" class="game-page">
+<h2>🐍 Snake Game</h2>
+<p>Arrow Keys to move • Don't hit walls or yourself!</p>
+<canvas id="snakeCanvas" width="400" height="400"></canvas>
+<div class="info" id="snakeInfo">Loading...</div>
+<a href="#menu" class="back">← Back to Menu</a>
+</div>
+
+<div id="flappy" class="game-page">
+<h2>🐦 Flappy Bird</h2>
+<p>Click or press Space to jump</p>
+<canvas id="flappyCanvas" width="400" height="600"></canvas>
+<div class="info" id="flappyInfo">Loading...</div>
+<a href="#menu" class="back">← Back to Menu</a>
+</div>
+
+<div id="pong" class="game-page">
+<h2>🏓 Pong</h2>
+<p>P1: W/S • P2: Arrow Up/Down</p>
+<canvas id="pongCanvas" width="600" height="400"></canvas>
+<div class="info" id="pongInfo">Loading...</div>
+<a href="#menu" class="back">← Back to Menu</a>
+</div>
+
+<div id="tag" class="game-page">
+<h2>🏃 Tag Game (4 Players)</h2>
+<p>P1:WASD • P2:↑↓←→ • P3:IJKL • P4:Numpad(8246)</p>
+<canvas id="tagCanvas" width="600" height="400"></canvas>
+<div class="info" id="tagInfo">Try to tag other players!</div>
+<a href="#menu" class="back">← Back to Menu</a>
+</div>
+
+<script nonce="inline">
+if(window.location.hash === '#snake') startSnake();
+if(window.location.hash === '#flappy') startFlappy();
+if(window.location.hash === '#pong') startPong();
+if(window.location.hash === '#tag') startTag();
 
 function startSnake() {
-  canvas.style.display = 'block';
-  canvas.width = 400;
-  canvas.height = 400;
-  info.textContent = '🐍 Arrow Keys to move';
-  document.getElementById('menu').style.display = 'none';
-  
-  gameState = {
-    type: 'snake',
-    snake: [{x:10,y:10}],
-    food: {x:15,y:15},
-    dx: 1,
-    dy: 0,
-    score: 0
-  };
-  
-  document.onkeydown = (e) => {
-    if(e.key === 'ArrowUp' && gameState.dy === 0) gameState.dx = 0, gameState.dy = -1;
-    if(e.key === 'ArrowDown' && gameState.dy === 0) gameState.dx = 0, gameState.dy = 1;
-    if(e.key === 'ArrowLeft' && gameState.dx === 0) gameState.dx = -1, gameState.dy = 0;
-    if(e.key === 'ArrowRight' && gameState.dx === 0) gameState.dx = 1, gameState.dy = 0;
-  };
-  
-  updateSnake();
-}
+const c = document.getElementById('snakeCanvas');
+const ctx = c.getContext('2d');
+let s = [{x:10,y:10}], f = {x:15,y:15}, dx = 1, dy = 0, score = 0;
 
-function updateSnake() {
-  if(!gameState || gameState.type !== 'snake') return;
-  
-  let h = {x:gameState.snake[0].x+gameState.dx, y:gameState.snake[0].y+gameState.dy};
-  
-  if(h.x < 0 || h.x > 19 || h.y < 0 || h.y > 19 || gameState.snake.some(s=>s.x===h.x&&s.y===h.y)) {
-    alert('Score: ' + gameState.score);
-    resetMenu();
-    return;
-  }
-  
-  gameState.snake.unshift(h);
-  
-  if(h.x === gameState.food.x && h.y === gameState.food.y) {
-    gameState.score++;
-    gameState.food = {x:Math.floor(Math.random()*20), y:Math.floor(Math.random()*20)};
-  } else {
-    gameState.snake.pop();
-  }
-  
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,400,400);
-  ctx.fillStyle = '#0f0';
-  gameState.snake.forEach(s => ctx.fillRect(s.x*20+1, s.y*20+1, 18, 18));
-  ctx.fillStyle = '#f00';
-  ctx.fillRect(gameState.food.x*20+1, gameState.food.y*20+1, 18, 18);
-  ctx.fillStyle = '#fff';
-  ctx.font = '16px Arial';
-  ctx.fillText('Score: ' + gameState.score, 10, 25);
-  
-  setTimeout(updateSnake, 100);
+document.onkeydown = (e) => {
+if(e.key === 'ArrowUp' && dy === 0) dx = 0, dy = -1;
+if(e.key === 'ArrowDown' && dy === 0) dx = 0, dy = 1;
+if(e.key === 'ArrowLeft' && dx === 0) dx = -1, dy = 0;
+if(e.key === 'ArrowRight' && dx === 0) dx = 1, dy = 0;
+};
+
+function update() {
+let h = {x:s[0].x+dx, y:s[0].y+dy};
+if(h.x<0||h.x>19||h.y<0||h.y>19||s.some(p=>p.x===h.x&&p.y===h.y)) { document.getElementById('snakeInfo').textContent = 'Game Over! Score: '+score; return; }
+s.unshift(h);
+if(h.x===f.x&&h.y===f.y) { score++; f = {x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)}; } else s.pop();
+
+ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
+ctx.fillStyle = '#0f0'; s.forEach(p => ctx.fillRect(p.x*20+1,p.y*20+1,18,18));
+ctx.fillStyle = '#f00'; ctx.fillRect(f.x*20+1,f.y*20+1,18,18);
+ctx.fillStyle = '#fff'; ctx.font = '16px Arial'; ctx.fillText('Score: '+score,10,25);
+setTimeout(update, 100);
+}
+update();
 }
 
 function startFlappy() {
-  canvas.style.display = 'block';
-  canvas.width = 400;
-  canvas.height = 600;
-  info.textContent = '🐦 Click to jump';
-  document.getElementById('menu').style.display = 'none';
-  
-  gameState = {
-    type: 'flappy',
-    bird: {y:300, vel:0},
-    pipes: [],
-    score: 0
-  };
-  
-  document.onmousedown = () => { if(gameState && gameState.type === 'flappy') gameState.bird.vel = -12; };
-  document.onkeydown = (e) => { if(e.code === 'Space') gameState.bird.vel = -12; };
-  
-  updateFlappy();
-}
+const c = document.getElementById('flappyCanvas');
+const ctx = c.getContext('2d');
+let b = {y:300,v:0}, p = [], score = 0;
 
-function updateFlappy() {
-  if(!gameState || gameState.type !== 'flappy') return;
-  
-  gameState.bird.vel += 0.6;
-  gameState.bird.y += gameState.bird.vel;
-  
-  if(gameState.bird.y > 600 || gameState.bird.y < 0) {
-    alert('Score: ' + gameState.score);
-    resetMenu();
-    return;
-  }
-  
-  if(gameState.pipes.length === 0 || gameState.pipes[gameState.pipes.length-1].x < 150) {
-    gameState.pipes.push({x:400, y:Math.random()*250+50});
-  }
-  
-  gameState.pipes = gameState.pipes.filter(p => {
-    p.x -= 5;
-    if(p.x + 60 < 0) { gameState.score++; return false; }
-    if(50 > p.x && 50 < p.x+60) {
-      if(gameState.bird.y < p.y || gameState.bird.y > p.y+120) {
-        alert('Score: ' + gameState.score);
-        resetMenu();
-      }
-    }
-    return true;
-  });
-  
-  ctx.fillStyle = '#87ceeb';
-  ctx.fillRect(0,0,400,600);
-  ctx.fillStyle = '#228b22';
-  gameState.pipes.forEach(p => {
-    ctx.fillRect(p.x, 0, 60, p.y);
-    ctx.fillRect(p.x, p.y+120, 60, 600);
-  });
-  ctx.fillStyle = '#ffeb3b';
-  ctx.fillRect(40, gameState.bird.y-10, 20, 20);
-  ctx.fillStyle = '#fff';
-  ctx.font = '20px Arial';
-  ctx.fillText('Score: ' + gameState.score, 20, 40);
-  
-  setTimeout(updateFlappy, 30);
+document.onkeydown = (e) => {if(e.code==='Space') b.v = -12;};
+document.onmousedown = () => b.v = -12;
+
+function update() {
+b.v += 0.6; b.y += b.v;
+if(b.y > 600 || b.y < 0) { document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; return; }
+
+if(p.length === 0 || p[p.length-1].x < 150) p.push({x:400, y:Math.random()*250+50});
+
+p = p.filter(pipe => {
+pipe.x -= 5;
+if(pipe.x + 60 < 0) { score++; return false; }
+if(50 > pipe.x && 50 < pipe.x+60) if(b.y < pipe.y || b.y > pipe.y+120) { document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; return false; }
+return true;
+});
+
+ctx.fillStyle = '#87ceeb'; ctx.fillRect(0,0,400,600);
+ctx.fillStyle = '#228b22'; p.forEach(pipe => { ctx.fillRect(pipe.x,0,60,pipe.y); ctx.fillRect(pipe.x,pipe.y+120,60,600); });
+ctx.fillStyle = '#ffeb3b'; ctx.fillRect(40,b.y-10,20,20);
+ctx.fillStyle = '#fff'; ctx.font = '20px Arial'; ctx.fillText('Score: '+score,20,40);
+setTimeout(update, 30);
+}
+update();
 }
 
 function startPong() {
-  canvas.style.display = 'block';
-  canvas.width = 600;
-  canvas.height = 400;
-  info.textContent = '🏓 P1: W/S | P2: ↑/↓';
-  document.getElementById('menu').style.display = 'none';
-  
-  gameState = {
-    type: 'pong',
-    p1: {y:175, h:50},
-    p2: {y:175, h:50},
-    ball: {x:300, y:200, vx:4, vy:4, r:8},
-    score: [0,0],
-    keys: {}
-  };
-  
-  document.onkeydown = (e) => { gameState.keys[e.key] = true; };
-  document.onkeyup = (e) => { gameState.keys[e.key] = false; };
-  
-  updatePong();
-}
+const c = document.getElementById('pongCanvas');
+const ctx = c.getContext('2d');
+let p1 = {y:175,h:50}, p2 = {y:175,h:50}, ball = {x:300,y:200,vx:4,vy:4,r:8}, score = [0,0], keys = {};
 
-function updatePong() {
-  if(!gameState || gameState.type !== 'pong') return;
-  
-  if(gameState.keys['w'] && gameState.p1.y > 0) gameState.p1.y -= 6;
-  if(gameState.keys['s'] && gameState.p1.y + gameState.p1.h < 400) gameState.p1.y += 6;
-  if(gameState.keys['ArrowUp'] && gameState.p2.y > 0) gameState.p2.y -= 6;
-  if(gameState.keys['ArrowDown'] && gameState.p2.y + gameState.p2.h < 400) gameState.p2.y += 6;
-  
-  gameState.ball.x += gameState.ball.vx;
-  gameState.ball.y += gameState.ball.vy;
-  
-  if(gameState.ball.y < gameState.ball.r || gameState.ball.y > 400-gameState.ball.r) gameState.ball.vy *= -1;
-  if(gameState.ball.x < 20 && gameState.ball.y > gameState.p1.y && gameState.ball.y < gameState.p1.y+gameState.p1.h) gameState.ball.vx *= -1;
-  if(gameState.ball.x > 580 && gameState.ball.y > gameState.p2.y && gameState.ball.y < gameState.p2.y+gameState.p2.h) gameState.ball.vx *= -1;
-  
-  if(gameState.ball.x < 0) {gameState.score[1]++; gameState.ball = {x:300, y:200, vx:4, vy:4, r:8};}
-  if(gameState.ball.x > 600) {gameState.score[0]++; gameState.ball = {x:300, y:200, vx:4, vy:4, r:8};}
-  
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,600,400);
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(10, gameState.p1.y, 10, gameState.p1.h);
-  ctx.fillRect(580, gameState.p2.y, 10, gameState.p2.h);
-  ctx.beginPath();
-  ctx.arc(gameState.ball.x, gameState.ball.y, gameState.ball.r, 0, Math.PI*2);
-  ctx.fill();
-  ctx.font = '24px Arial';
-  ctx.fillText(gameState.score[0], 100, 50);
-  ctx.fillText(gameState.score[1], 500, 50);
-  
-  setTimeout(updatePong, 30);
+document.onkeydown = (e) => keys[e.key] = true;
+document.onkeyup = (e) => keys[e.key] = false;
+
+function update() {
+if(keys['w'] && p1.y > 0) p1.y -= 6;
+if(keys['s'] && p1.y + p1.h < 400) p1.y += 6;
+if(keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
+if(keys['ArrowDown'] && p2.y + p2.h < 400) p2.y += 6;
+
+ball.x += ball.vx; ball.y += ball.vy;
+
+if(ball.y < ball.r || ball.y > 400-ball.r) ball.vy *= -1;
+if(ball.x < 20 && ball.y > p1.y && ball.y < p1.y+p1.h) ball.vx *= -1;
+if(ball.x > 580 && ball.y > p2.y && ball.y < p2.y+p2.h) ball.vx *= -1;
+
+if(ball.x < 0) {score[1]++; ball = {x:300,y:200,vx:4,vy:4,r:8};}
+if(ball.x > 600) {score[0]++; ball = {x:300,y:200,vx:4,vy:4,r:8};}
+
+ctx.fillStyle = '#000'; ctx.fillRect(0,0,600,400);
+ctx.fillStyle = '#fff';
+ctx.fillRect(10,p1.y,10,p1.h); ctx.fillRect(580,p2.y,10,p2.h);
+ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+ctx.font = '24px Arial'; ctx.fillText(score[0],100,50); ctx.fillText(score[1],500,50);
+setTimeout(update, 30);
+}
+update();
 }
 
 function startTag() {
-  canvas.style.display = 'block';
-  canvas.width = 600;
-  canvas.height = 400;
-  info.textContent = '🏃 P1:WASD P2:↑↓←→ P3:IJKL P4:Numpad';
-  document.getElementById('menu').style.display = 'none';
-  
-  gameState = {
-    type: 'tag',
-    players: [
-      {x:50, y:180, size:20, color:'#ff4444', keys:{up:'w',down:'s',left:'a',right:'d'}},
-      {x:550, y:180, size:20, color:'#4444ff', keys:{up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'}},
-      {x:150, y:300, size:20, color:'#44ff44', keys:{up:'i',down:'k',left:'j',right:'l'}},
-      {x:450, y:100, size:20, color:'#ffff44', keys:{up:'8',down:'2',left:'4',right:'6'}}
-    ],
-    keys: {},
-    tagged: -1
-  };
-  
-  document.onkeydown = (e) => { gameState.keys[e.key] = true; };
-  document.onkeyup = (e) => { gameState.keys[e.key] = false; };
-  
-  updateTag();
+const c = document.getElementById('tagCanvas');
+const ctx = c.getContext('2d');
+let players = [
+{x:50,y:180,size:20,color:'#ff4444',keys:{up:'w',down:'s',left:'a',right:'d'}},
+{x:550,y:180,size:20,color:'#4444ff',keys:{up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'}},
+{x:150,y:300,size:20,color:'#44ff44',keys:{up:'i',down:'k',left:'j',right:'l'}},
+{x:450,y:100,size:20,color:'#ffff44',keys:{up:'8',down:'2',left:'4',right:'6'}}
+], keys = {}, tagged = -1;
+
+document.onkeydown = (e) => keys[e.key] = true;
+document.onkeyup = (e) => keys[e.key] = false;
+
+function update() {
+players.forEach(p => {
+if(keys[p.keys.left] && p.x > 0) p.x -= 4;
+if(keys[p.keys.right] && p.x < 580) p.x += 4;
+if(keys[p.keys.up] && p.y > 0) p.y -= 4;
+if(keys[p.keys.down] && p.y < 380) p.y += 4;
+});
+
+tagged = -1;
+for(let i = 0; i < players.length; i++) {
+for(let j = i+1; j < players.length; j++) {
+let dx = players[i].x - players[j].x;
+let dy = players[i].y - players[j].y;
+if(dx*dx + dy*dy < 1600) tagged = Math.random() > 0.5 ? i : j;
+}
 }
 
-function updateTag() {
-  if(!gameState || gameState.type !== 'tag') return;
-  
-  gameState.players.forEach(p => {
-    if(gameState.keys[p.keys.left] && p.x > 0) p.x -= 4;
-    if(gameState.keys[p.keys.right] && p.x < 580) p.x += 4;
-    if(gameState.keys[p.keys.up] && p.y > 0) p.y -= 4;
-    if(gameState.keys[p.keys.down] && p.y < 380) p.y += 4;
-  });
-  
-  gameState.tagged = -1;
-  for(let i = 0; i < gameState.players.length; i++) {
-    for(let j = i+1; j < gameState.players.length; j++) {
-      let dx = gameState.players[i].x - gameState.players[j].x;
-      let dy = gameState.players[i].y - gameState.players[j].y;
-      if(dx*dx + dy*dy < 1600) {
-        gameState.tagged = Math.random() > 0.5 ? i : j;
-      }
-    }
-  }
-  
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0,0,600,400);
-  gameState.players.forEach((p,i) => {
-    ctx.fillStyle = (i === gameState.tagged) ? '#ff0000' : p.color;
-    ctx.fillRect(p.x, p.y, p.size, p.size);
-  });
-  ctx.fillStyle = '#fff';
-  ctx.font = '14px Arial';
-  ctx.fillText('P1:Red P2:Blue P3:Green P4:Yellow', 20, 30);
-  if(gameState.tagged >= 0) ctx.fillText('P'+(gameState.tagged+1)+' IS TAGGED!', 250, 30);
-  
-  setTimeout(updateTag, 30);
+ctx.fillStyle = '#000'; ctx.fillRect(0,0,600,400);
+players.forEach((p,i) => {
+ctx.fillStyle = (i === tagged) ? '#ff0000' : p.color;
+ctx.fillRect(p.x,p.y,p.size,p.size);
+});
+ctx.fillStyle = '#fff'; ctx.font = '14px Arial';
+ctx.fillText('P1:Red P2:Blue P3:Green P4:Yellow', 20, 30);
+if(tagged >= 0) ctx.fillText('P'+(tagged+1)+' IS TAGGED!', 250, 30);
+setTimeout(update, 30);
 }
-
-function resetMenu() {
-  gameState = null;
-  canvas.style.display = 'none';
-  document.getElementById('menu').style.display = 'grid';
-  info.textContent = '';
-  document.onkeydown = null;
-  document.onmousedown = null;
+update();
 }
 </script>
 </body>
