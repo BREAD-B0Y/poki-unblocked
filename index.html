@@ -32,12 +32,11 @@
         header h1 {
             font-size: 3em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
         .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
         }
         
@@ -46,27 +45,27 @@
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
         
         .game-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+            transform: scale(1.05);
         }
         
         .game-image {
             width: 100%;
-            height: 200px;
+            height: 150px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3em;
+            font-size: 4em;
         }
         
         .game-info {
             padding: 15px;
+            text-align: center;
         }
         
         .game-info h3 {
@@ -74,105 +73,73 @@
             color: #333;
         }
         
-        .game-info p {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 12px;
-        }
-        
         .play-btn {
             width: 100%;
             padding: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: opacity 0.2s;
         }
         
         .play-btn:hover {
-            opacity: 0.9;
-        }
-        
-        .play-btn:active {
-            transform: scale(0.98);
+            background: #764ba2;
         }
         
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .modal.show {
-            display: flex;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
             align-items: center;
             justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
         }
         
         .modal-content {
-            background-color: white;
-            padding: 20px;
+            background: white;
             border-radius: 12px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            padding: 20px;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         }
         
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 15px;
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+            z-index: 1001;
         }
         
-        .modal-header h2 {
+        .modal-close:hover {
+            color: #ccc;
+        }
+        
+        .game-title {
+            text-align: center;
+            margin-bottom: 20px;
             color: #333;
         }
         
-        .close {
-            font-size: 28px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        
-        .close:hover {
-            color: #000;
-        }
-        
-        .game-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-        }
-        
         canvas {
-            max-width: 100%;
+            display: block;
+            margin: 0 auto;
             border: 2px solid #333;
-            border-radius: 8px;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            background: #000;
         }
     </style>
 </head>
@@ -180,560 +147,339 @@
     <div class="container">
         <header>
             <h1>🎮 Game Hub Pro</h1>
-            <p>Classic games that actually work!</p>
+            <p style="color: white; font-size: 18px;">Click any game to play!</p>
         </header>
         
-        <div class="game-grid" id="gameGrid"></div>
-    </div>
-    
-    <div id="gameModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="gameTitle"></h2>
-                <span class="close">&times;</span>
+        <div class="game-grid">
+            <div class="game-card" onclick="playSnake()">
+                <div class="game-image">🐍</div>
+                <div class="game-info">
+                    <h3>Snake</h3>
+                    <button class="play-btn">Play</button>
+                </div>
             </div>
-            <div class="game-container" id="gameContainer"></div>
+            
+            <div class="game-card" onclick="playFlappy()">
+                <div class="game-image">🐦</div>
+                <div class="game-info">
+                    <h3>Flappy Bird</h3>
+                    <button class="play-btn">Play</button>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="playPong()">
+                <div class="game-image">🏓</div>
+                <div class="game-info">
+                    <h3>Pong</h3>
+                    <button class="play-btn">Play</button>
+                </div>
+            </div>
+            
+            <div class="game-card" onclick="playBreakout()">
+                <div class="game-image">🧱</div>
+                <div class="game-info">
+                    <h3>Breakout</h3>
+                    <button class="play-btn">Play</button>
+                </div>
+            </div>
         </div>
     </div>
     
+    <div id="modal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <h2 class="game-title" id="modalTitle"></h2>
+            <div id="gameArea"></div>
+        </div>
+    </div>
+
     <script>
-        const games = [
-            {
-                name: "Snake",
-                emoji: "🐍",
-                description: "Eat food, grow longer, don't crash!",
-                id: "snake"
-            },
-            {
-                name: "Flappy Bird",
-                emoji: "🐦",
-                description: "Tap to fly through pipes",
-                id: "flappy"
-            },
-            {
-                name: "Pong",
-                emoji: "🏓",
-                description: "Classic multiplayer arcade",
-                id: "pong"
-            },
-            {
-                name: "Breakout",
-                emoji: "🧱",
-                description: "Break bricks with a ball",
-                id: "breakout"
-            }
-        ];
-        
-        const gameGrid = document.getElementById('gameGrid');
-        const modal = document.getElementById('gameModal');
-        const closeBtn = document.querySelector('.close');
-        const gameContainer = document.getElementById('gameContainer');
-        const gameTitle = document.getElementById('gameTitle');
-        
-        let currentGame = null;
-        
-        games.forEach(game => {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.innerHTML = `
-                <div class="game-image">${game.emoji}</div>
-                <div class="game-info">
-                    <h3>${game.name}</h3>
-                    <p>${game.description}</p>
-                    <button class="play-btn" data-game="${game.id}">Play Now</button>
-                </div>
-            `;
-            card.querySelector('.play-btn').onclick = () => startGame(game);
-            gameGrid.appendChild(card);
-        });
-        
-        function startGame(game) {
-            gameTitle.textContent = game.name;
-            gameContainer.innerHTML = '';
-            modal.classList.add('show');
-            currentGame = game.id;
-            
-            if (game.id === 'snake') initSnake();
-            else if (game.id === 'flappy') initFlappy();
-            else if (game.id === 'pong') initPong();
-            else if (game.id === 'breakout') initBreakout();
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
         }
         
-        // ===== SNAKE GAME =====
-        function initSnake() {
-            const canvas = document.createElement('canvas');
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.onkeydown = null;
+            document.onmousemove = null;
+            document.ontouchstart = null;
+        }
+        
+        function playSnake() {
+            document.getElementById('modalTitle').textContent = '🐍 Snake Game';
+            document.getElementById('gameArea').innerHTML = '<canvas id="snakeCanvas"></canvas>';
+            openModal();
+            
+            const canvas = document.getElementById('snakeCanvas');
             canvas.width = 400;
             canvas.height = 400;
-            gameContainer.appendChild(canvas);
-            
             const ctx = canvas.getContext('2d');
-            const grid = 20;
-            const tileCount = canvas.width / grid;
             
             let snake = [{x: 10, y: 10}];
-            let food = {x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount)};
+            let food = {x: 15, y: 15};
             let dx = 1, dy = 0;
             let score = 0;
             let gameRunning = true;
-            
-            const scoreDisplay = document.createElement('p');
-            scoreDisplay.style.cssText = 'text-align:center;font-size:18px;color:#333;margin-top:10px;';
-            scoreDisplay.textContent = `Score: ${score}`;
-            gameContainer.appendChild(scoreDisplay);
+            const gridSize = 20;
             
             document.onkeydown = (e) => {
-                if (e.key === 'ArrowUp' && dy === 0) {dx = 0; dy = -1; e.preventDefault();}
-                else if (e.key === 'ArrowDown' && dy === 0) {dx = 0; dy = 1; e.preventDefault();}
-                else if (e.key === 'ArrowLeft' && dx === 0) {dx = -1; dy = 0; e.preventDefault();}
-                else if (e.key === 'ArrowRight' && dx === 0) {dx = 1; dy = 0; e.preventDefault();}
+                if (e.key === 'ArrowUp' && dy === 0) {dx = 0; dy = -1;}
+                if (e.key === 'ArrowDown' && dy === 0) {dx = 0; dy = 1;}
+                if (e.key === 'ArrowLeft' && dx === 0) {dx = -1; dy = 0;}
+                if (e.key === 'ArrowRight' && dx === 0) {dx = 1; dy = 0;}
             };
             
-            function update() {
+            const gameLoop = setInterval(() => {
+                if (!gameRunning) return;
+                
                 const head = {x: snake[0].x + dx, y: snake[0].y + dy};
                 
-                // Wall collision
-                if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
                     gameRunning = false;
-                    alert(`Game Over! Final Score: ${score}`);
+                    alert('Game Over! Score: ' + score);
+                    closeModal();
+                    clearInterval(gameLoop);
                     return;
                 }
                 
-                // Self collision
-                for (let segment of snake) {
-                    if (head.x === segment.x && head.y === segment.y) {
-                        gameRunning = false;
-                        alert(`Game Over! Final Score: ${score}`);
-                        return;
-                    }
+                if (snake.some(s => s.x === head.x && s.y === head.y)) {
+                    gameRunning = false;
+                    alert('Game Over! Score: ' + score);
+                    closeModal();
+                    clearInterval(gameLoop);
+                    return;
                 }
                 
                 snake.unshift(head);
                 
-                // Food collision
                 if (head.x === food.x && head.y === food.y) {
-                    score += 10;
-                    scoreDisplay.textContent = `Score: ${score}`;
-                    food = {x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount)};
+                    score++;
+                    food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
                 } else {
                     snake.pop();
                 }
-            }
-            
-            function draw() {
-                // Background
-                ctx.fillStyle = '#1a1a1a';
+                
+                // Draw
+                ctx.fillStyle = '#000';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Grid
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 0.5;
-                for (let i = 0; i <= tileCount; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * grid, 0);
-                    ctx.lineTo(i * grid, canvas.height);
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.moveTo(0, i * grid);
-                    ctx.lineTo(canvas.width, i * grid);
-                    ctx.stroke();
-                }
+                ctx.fillStyle = '#0f0';
+                snake.forEach(s => ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2));
                 
-                // Snake
-                ctx.fillStyle = '#00ff00';
-                snake.forEach((segment, index) => {
-                    ctx.fillRect(segment.x * grid + 1, segment.y * grid + 1, grid - 2, grid - 2);
-                    if (index === 0) {
-                        ctx.fillStyle = '#00ff88';
-                    }
-                });
+                ctx.fillStyle = '#f00';
+                ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
                 
-                // Food
-                ctx.fillStyle = '#ff4444';
-                ctx.beginPath();
-                ctx.arc(food.x * grid + grid/2, food.y * grid + grid/2, grid/2 - 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            const gameLoop = setInterval(() => {
-                if (!gameRunning) {
-                    clearInterval(gameLoop);
-                    return;
-                }
-                update();
-                draw();
-            }, 80);
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Arial';
+                ctx.fillText('Score: ' + score, 10, 25);
+            }, 100);
         }
         
-        // ===== FLAPPY BIRD GAME =====
-        function initFlappy() {
-            const canvas = document.createElement('canvas');
+        function playFlappy() {
+            document.getElementById('modalTitle').textContent = '🐦 Flappy Bird';
+            document.getElementById('gameArea').innerHTML = '<canvas id="flappyCanvas"></canvas>';
+            openModal();
+            
+            const canvas = document.getElementById('flappyCanvas');
             canvas.width = 400;
             canvas.height = 600;
-            gameContainer.appendChild(canvas);
-            
             const ctx = canvas.getContext('2d');
             
-            let bird = {x: 50, y: 300, width: 30, height: 24, vel: 0, angle: 0};
+            let bird = {y: 300, vel: 0};
             let pipes = [];
             let score = 0;
             let gameRunning = true;
-            const gravity = 0.6;
-            const jumpPower = -15;
-            const pipeSpeed = 4;
-            const pipeGap = 140;
-            
-            const scoreDisplay = document.createElement('p');
-            scoreDisplay.style.cssText = 'text-align:center;font-size:18px;color:#333;margin-top:10px;';
-            scoreDisplay.textContent = `Score: ${score}`;
-            gameContainer.appendChild(scoreDisplay);
             
             const jump = () => {
-                if (gameRunning) {
-                    bird.vel = jumpPower;
-                    bird.angle = -25;
-                }
+                if (gameRunning) bird.vel = -12;
             };
             
-            document.onkeydown = (e) => {
-                if (e.code === 'Space') { jump(); e.preventDefault(); }
-            };
+            document.onkeydown = (e) => {if (e.code === 'Space') jump();};
             document.onmousedown = jump;
-            canvas.ontouchstart = jump;
-            
-            function update() {
-                bird.vel += gravity;
-                bird.y += bird.vel;
-                bird.angle = Math.min(90, bird.angle + 2);
-                
-                // Ceiling and ground
-                if (bird.y < 0 || bird.y + bird.height > canvas.height) {
-                    gameRunning = false;
-                    alert(`Game Over! Score: ${score}`);
-                    return;
-                }
-                
-                // Generate pipes
-                if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
-                    const pipeY = Math.random() * (canvas.height - pipeGap - 100) + 50;
-                    pipes.push({x: canvas.width, y: pipeY});
-                }
-                
-                // Move and check pipes
-                for (let i = pipes.length - 1; i >= 0; i--) {
-                    pipes[i].x -= pipeSpeed;
-                    
-                    if (pipes[i].x + 60 < 0) {
-                        pipes.splice(i, 1);
-                        score++;
-                        scoreDisplay.textContent = `Score: ${score}`;
-                    } else {
-                        // Collision detection
-                        if (bird.x + bird.width > pipes[i].x && bird.x < pipes[i].x + 60) {
-                            if (bird.y < pipes[i].y || bird.y + bird.height > pipes[i].y + pipeGap) {
-                                gameRunning = false;
-                                alert(`Game Over! Score: ${score}`);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            function draw() {
-                // Sky
-                ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Ground
-                ctx.fillStyle = '#90EE90';
-                ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-                
-                // Pipes
-                ctx.fillStyle = '#228b22';
-                pipes.forEach(pipe => {
-                    ctx.fillRect(pipe.x, 0, 60, pipe.y);
-                    ctx.fillRect(pipe.x, pipe.y + pipeGap, 60, canvas.height - pipe.y - pipeGap - 40);
-                });
-                
-                // Bird
-                ctx.save();
-                ctx.translate(bird.x + bird.width/2, bird.y + bird.height/2);
-                ctx.rotate(bird.angle * Math.PI / 180);
-                ctx.fillStyle = '#ffeb3b';
-                ctx.fillRect(-bird.width/2, -bird.height/2, bird.width, bird.height);
-                ctx.fillStyle = '#000';
-                ctx.fillRect(bird.width/4, -bird.height/4, 4, 4);
-                ctx.restore();
-            }
             
             const gameLoop = setInterval(() => {
-                if (!gameRunning) {
+                if (!gameRunning) return;
+                
+                bird.vel += 0.6;
+                bird.y += bird.vel;
+                
+                if (bird.y > 600 || bird.y < 0) {
+                    gameRunning = false;
+                    alert('Game Over! Score: ' + score);
+                    closeModal();
                     clearInterval(gameLoop);
                     return;
                 }
-                update();
-                draw();
+                
+                if (pipes.length === 0 || pipes[pipes.length - 1].x < 150) {
+                    pipes.push({x: 400, y: Math.random() * 250 + 50});
+                }
+                
+                pipes = pipes.filter(p => {
+                    p.x -= 5;
+                    if (p.x + 60 < 0) {
+                        score++;
+                        return false;
+                    }
+                    
+                    if (50 > p.x && 50 < p.x + 60) {
+                        if (bird.y < p.y || bird.y > p.y + 120) {
+                            gameRunning = false;
+                            alert('Game Over! Score: ' + score);
+                            closeModal();
+                            clearInterval(gameLoop);
+                        }
+                    }
+                    return true;
+                });
+                
+                ctx.fillStyle = '#87ceeb';
+                ctx.fillRect(0, 0, 400, 600);
+                
+                ctx.fillStyle = '#228b22';
+                pipes.forEach(p => {
+                    ctx.fillRect(p.x, 0, 60, p.y);
+                    ctx.fillRect(p.x, p.y + 120, 60, 600);
+                });
+                
+                ctx.fillStyle = '#ffeb3b';
+                ctx.fillRect(40, bird.y - 10, 20, 20);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px Arial';
+                ctx.fillText('Score: ' + score, 20, 40);
             }, 30);
         }
         
-        // ===== PONG GAME =====
-        function initPong() {
-            const canvas = document.createElement('canvas');
+        function playPong() {
+            document.getElementById('modalTitle').textContent = '🏓 Pong';
+            document.getElementById('gameArea').innerHTML = '<canvas id="pongCanvas"></canvas>';
+            openModal();
+            
+            const canvas = document.getElementById('pongCanvas');
             canvas.width = 600;
             canvas.height = 400;
-            gameContainer.appendChild(canvas);
-            
             const ctx = canvas.getContext('2d');
             
-            let paddles = [
-                {x: 10, y: 180, width: 15, height: 60, vel: 0},
-                {x: 575, y: 180, width: 15, height: 60, vel: 0}
-            ];
+            let p1 = {y: 175, height: 50};
+            let p2 = {y: 175, height: 50};
+            let ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};
+            let score = [0, 0];
             
-            let ball = {x: 300, y: 200, radius: 8, vx: 4, vy: 4};
-            let scores = [0, 0];
-            let gameRunning = true;
-            
-            const scoreDisplay = document.createElement('p');
-            scoreDisplay.style.cssText = 'text-align:center;font-size:18px;color:#333;margin-top:10px;';
-            const updateScore = () => { scoreDisplay.textContent = `Player 1: ${scores[0]}  |  Player 2: ${scores[1]}`; };
-            updateScore();
-            gameContainer.appendChild(scoreDisplay);
-            
-            let keys = {};
+            const keys = {};
             document.onkeydown = (e) => {keys[e.key] = true;};
             document.onkeyup = (e) => {keys[e.key] = false;};
             
-            function update() {
-                // Paddle movement
-                if (keys['w'] && paddles[0].y > 0) paddles[0].y -= 6;
-                if (keys['s'] && paddles[0].y + paddles[0].height < canvas.height) paddles[0].y += 6;
-                if (keys['ArrowUp'] && paddles[1].y > 0) paddles[1].y -= 6;
-                if (keys['ArrowDown'] && paddles[1].y + paddles[1].height < canvas.height) paddles[1].y += 6;
+            const gameLoop = setInterval(() => {
+                if (keys['w'] && p1.y > 0) p1.y -= 6;
+                if (keys['s'] && p1.y + p1.height < 400) p1.y += 6;
+                if (keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
+                if (keys['ArrowDown'] && p2.y + p2.height < 400) p2.y += 6;
                 
-                // Ball movement
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Top/bottom collision
-                if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
-                    ball.vy *= -1;
-                    ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
-                }
+                if (ball.y < ball.r || ball.y > 400 - ball.r) ball.vy *= -1;
                 
-                // Paddle collision
-                paddles.forEach((paddle, i) => {
-                    if (ball.x - ball.radius < paddle.x + paddle.width && 
-                        ball.x + ball.radius > paddle.x &&
-                        ball.y > paddle.y && 
-                        ball.y < paddle.y + paddle.height) {
-                        ball.vx *= -1.05;
-                        let hitPos = (ball.y - (paddle.y + paddle.height/2)) / (paddle.height/2);
-                        ball.vy += hitPos * 3;
-                        ball.x = i === 0 ? paddle.x + paddle.width + ball.radius : paddle.x - ball.radius;
-                    }
-                });
+                if (ball.x < 20 && ball.y > p1.y && ball.y < p1.y + p1.height) ball.vx *= -1;
+                if (ball.x > 580 && ball.y > p2.y && ball.y < p2.y + p2.height) ball.vx *= -1;
                 
-                // Score
-                if (ball.x < 0) {
-                    scores[1]++;
-                    updateScore();
-                    ball = {x: 300, y: 200, radius: 8, vx: 4, vy: 4};
-                }
-                if (ball.x > canvas.width) {
-                    scores[0]++;
-                    updateScore();
-                    ball = {x: 300, y: 200, radius: 8, vx: -4, vy: 4};
-                }
-            }
-            
-            function draw() {
-                // Background
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                if (ball.x < 0) {score[1]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
+                if (ball.x > 600) {score[0]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
                 
-                // Center line
-                ctx.strokeStyle = '#fff';
-                ctx.setLineDash([10, 10]);
-                ctx.beginPath();
-                ctx.moveTo(canvas.width/2, 0);
-                ctx.lineTo(canvas.width/2, canvas.height);
-                ctx.stroke();
-                ctx.setLineDash([]);
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 600, 400);
                 
-                // Paddles
                 ctx.fillStyle = '#fff';
-                paddles.forEach(p => ctx.fillRect(p.x, p.y, p.width, p.height));
-                
-                // Ball
-                ctx.fillStyle = '#ffeb3b';
+                ctx.fillRect(10, p1.y, 10, p1.height);
+                ctx.fillRect(580, p2.y, 10, p2.height);
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
                 ctx.fill();
-            }
-            
-            const gameInfo = document.createElement('p');
-            gameInfo.style.cssText = 'text-align:center;font-size:12px;color:#666;margin-top:5px;';
-            gameInfo.textContent = 'P1: W/S keys | P2: Arrow keys';
-            gameContainer.appendChild(gameInfo);
-            
-            const gameLoop = setInterval(() => {
-                if (!gameRunning) {
-                    clearInterval(gameLoop);
-                    return;
-                }
-                update();
-                draw();
+                
+                ctx.font = '24px Arial';
+                ctx.fillText(score[0], 100, 50);
+                ctx.fillText(score[1], 500, 50);
             }, 30);
         }
         
-        // ===== BREAKOUT GAME =====
-        function initBreakout() {
-            const canvas = document.createElement('canvas');
+        function playBreakout() {
+            document.getElementById('modalTitle').textContent = '🧱 Breakout';
+            document.getElementById('gameArea').innerHTML = '<canvas id="breakoutCanvas"></canvas>';
+            openModal();
+            
+            const canvas = document.getElementById('breakoutCanvas');
             canvas.width = 500;
             canvas.height = 600;
-            gameContainer.appendChild(canvas);
-            
             const ctx = canvas.getContext('2d');
             
             let paddle = {x: 225, y: 560, width: 50, height: 15};
-            let ball = {x: 250, y: 545, radius: 6, vx: 3, vy: -3};
+            let ball = {x: 250, y: 545, vx: 3, vy: -3, r: 6};
             let bricks = [];
             let score = 0;
-            let gameRunning = true;
             
-            // Create bricks
-            const brickRows = 4;
-            const brickCols = 8;
-            const brickWidth = 50;
-            const brickHeight = 15;
-            for (let r = 0; r < brickRows; r++) {
-                for (let c = 0; c < brickCols; c++) {
-                    bricks.push({
-                        x: 20 + c * (brickWidth + 10),
-                        y: 40 + r * (brickHeight + 10),
-                        width: brickWidth,
-                        height: brickHeight,
-                        active: true
-                    });
+            for (let r = 0; r < 4; r++) {
+                for (let c = 0; c < 8; c++) {
+                    bricks.push({x: 20 + c * 60, y: 40 + r * 20, w: 50, h: 15, active: true});
                 }
             }
             
-            const scoreDisplay = document.createElement('p');
-            scoreDisplay.style.cssText = 'text-align:center;font-size:18px;color:#333;margin-top:10px;';
-            scoreDisplay.textContent = `Score: ${score} | Bricks: ${bricks.length}`;
-            gameContainer.appendChild(scoreDisplay);
-            
-            let mouseX = canvas.width / 2;
             document.onmousemove = (e) => {
                 const rect = canvas.getBoundingClientRect();
-                mouseX = e.clientX - rect.left;
+                paddle.x = Math.max(0, Math.min(450, e.clientX - rect.left - paddle.width / 2));
             };
             
-            function update() {
-                paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, mouseX - paddle.width/2));
-                
+            const gameLoop = setInterval(() => {
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                // Wall collision
-                if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
-                    ball.vx *= -1;
-                }
-                if (ball.y - ball.radius < 0) {
-                    ball.vy *= -1;
+                if (ball.x < ball.r || ball.x > 500 - ball.r) ball.vx *= -1;
+                if (ball.y < ball.r) ball.vy *= -1;
+                
+                if (ball.y > 585 && ball.x > paddle.x && ball.x < paddle.x + paddle.width) ball.vy *= -1;
+                
+                if (ball.y > 600) {
+                    alert('Game Over! Score: ' + score);
+                    closeModal();
+                    clearInterval(gameLoop);
+                    return;
                 }
                 
-                // Paddle collision
-                if (ball.y + ball.radius > paddle.y && 
-                    ball.y - ball.radius < paddle.y + paddle.height &&
-                    ball.x > paddle.x && 
-                    ball.x < paddle.x + paddle.width) {
-                    ball.vy *= -1;
-                    let hitPos = (ball.x - paddle.x) / paddle.width;
-                    ball.vx = (hitPos - 0.5) * 8;
-                }
-                
-                // Lose
-                if (ball.y > canvas.height) {
-                    gameRunning = false;
-                    alert(`Game Over! Score: ${score}`);
-                }
-                
-                // Brick collision
                 bricks.forEach(brick => {
                     if (!brick.active) return;
-                    
-                    if (ball.x > brick.x && ball.x < brick.x + brick.width &&
-                        ball.y > brick.y && ball.y < brick.y + brick.height) {
+                    if (ball.x > brick.x && ball.x < brick.x + brick.w && ball.y > brick.y && ball.y < brick.y + brick.h) {
                         brick.active = false;
                         score += 10;
-                        scoreDisplay.textContent = `Score: ${score} | Bricks: ${bricks.filter(b => b.active).length}`;
                         ball.vy *= -1;
                     }
                 });
                 
-                // Win
-                if (bricks.every(b => !b.active)) {
-                    gameRunning = false;
-                    alert(`You Win! Score: ${score}`);
-                }
-            }
-            
-            function draw() {
-                // Background
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 500, 600);
                 
-                // Bricks
-                const colors = ['#ff6b6b', '#ee5a6f', '#f06a5d', '#fc7753'];
-                bricks.forEach((brick, i) => {
+                bricks.forEach(brick => {
                     if (brick.active) {
-                        ctx.fillStyle = colors[Math.floor(i / brickCols) % colors.length];
-                        ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-                        ctx.strokeStyle = '#000';
-                        ctx.lineWidth = 1;
-                        ctx.strokeRect(brick.x, brick.y, brick.width, brick.height);
+                        ctx.fillStyle = '#ff6b6b';
+                        ctx.fillRect(brick.x, brick.y, brick.w, brick.h);
                     }
                 });
                 
-                // Paddle
                 ctx.fillStyle = '#00ff88';
                 ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
                 
-                // Ball
                 ctx.fillStyle = '#ffeb3b';
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
                 ctx.fill();
-            }
-            
-            const gameLoop = setInterval(() => {
-                if (!gameRunning) {
-                    clearInterval(gameLoop);
-                    return;
-                }
-                update();
-                draw();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '20px Arial';
+                ctx.fillText('Score: ' + score, 20, 30);
             }, 30);
         }
         
-        closeBtn.onclick = () => {
-            modal.classList.remove('show');
-            document.onkeydown = null;
-            document.onmousedown = null;
-            document.onmousemove = null;
-            canvas.ontouchstart = null;
-        };
-        
         window.onclick = (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-                document.onkeydown = null;
-                document.onmousedown = null;
-                document.onmousemove = null;
-                canvas.ontouchstart = null;
-            }
+            if (e.target === document.getElementById('modal')) closeModal();
         };
     </script>
 </body>
