@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+        }
+        
+        .game-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+        
+        .game-info {
+            padding: 15px;
+        }
+        
+        .game-info h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .game-info p {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+        }
+        
+        .play-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .play-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .game-content {
+            flex-grow: 1;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Game Hub</h1>
+            <p>Play games anywhere</p>
+        </header>
+        
+        <div class="game-grid" id="gameGrid"></div>
+    </div>
+    
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="gameTitle"></h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="game-content" id="gameContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        const games = [
+            {
+                name: "Snake",
+                emoji: "🐍",
+                description: "Classic snake game",
+                gameType: "snake"
+            },
+            {
+                name: "Flappy Bird",
+                emoji: "🐦",
+                description: "Tap to fly",
+                gameType: "flappy"
+            },
+            {
+                name: "Pong",
+                emoji: "🏓",
+                description: "Classic arcade",
+                gameType: "pong"
+            },
+            {
+                name: "2048",
+                emoji: "🔢",
+                description: "Merge tiles",
+                gameType: "game2048"
+            }
+        ];
+        
+        const gameGrid = document.getElementById('gameGrid');
+        const modal = document.getElementById('gameModal');
+        const closeBtn = document.querySelector('.close');
+        const gameContent = document.getElementById('gameContent');
+        const gameTitle = document.getElementById('gameTitle');
+        
+        games.forEach(game => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `
+                <div class="game-image">${game.emoji}</div>
+                <div class="game-info">
+                    <h3>${game.name}</h3>
+                    <p>${game.description}</p>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            `;
+            card.querySelector('.play-btn').onclick = () => playGame(game);
+            gameGrid.appendChild(card);
+        });
+        
+        function playGame(game) {
+            gameTitle.textContent = game.name;
+            gameContent.innerHTML = getGameHTML(game.gameType);
+            modal.style.display = 'block';
+            
+            if (game.gameType === 'snake') initSnake();
+            else if (game.gameType === 'flappy') initFlappy();
+            else if (game.gameType === 'pong') initPong();
+            else if (game.gameType === 'game2048') init2048();
+        }
+        
+        function getGameHTML(type) {
+            if (type === 'snake') {
+                return '<canvas id="snakeCanvas" width="400" height="400" style="background:#000;display:block;margin:20px auto;border:2px solid #0f0;"></canvas><p id="snakeScore" style="text-align:center;color:#0f0;">Score: 0</p>';
+            } else if (type === 'flappy') {
+                return '<canvas id="flappyCanvas" width="400" height="600" style="background:#87ceeb;display:block;margin:20px auto;border:2px solid #333;"></canvas><p style="text-align:center;">Click to jump!</p>';
+            } else if (type === 'pong') {
+                return '<canvas id="pongCanvas" width="400" height="300" style="background:#000;display:block;margin:20px auto;border:2px solid #fff;"></canvas><p style="text-align:center;color:#fff;">Use UP/DOWN arrows</p>';
+            } else if (type === 'game2048') {
+                return '<div id="game2048" style="max-width:400px;margin:20px auto;"></div>';
+            }
+        }
+        
+        function initSnake() {
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            const scoreEl = document.getElementById('snakeScore');
+            
+            let snake = [{x:10,y:10}];
+            let food = {x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};
+            let dx=1, dy=0, score=0;
+            
+            document.onkeydown = (e) => {
+                if(e.key==='ArrowUp'&&dy===0){dx=0;dy=-1;}
+                else if(e.key==='ArrowDown'&&dy===0){dx=0;dy=1;}
+                else if(e.key==='ArrowLeft'&&dx===0){dx=-1;dy=0;}
+                else if(e.key==='ArrowRight'&&dx===0){dx=1;dy=0;}
+            };
+            
+            const gameLoop = setInterval(() => {
+                const head = {x:snake[0].x+dx,y:snake[0].y+dy};
+                
+                if(head.x<0||head.x>=20||head.y<0||head.y>=20||snake.some(s=>s.x===head.x&&s.y===head.y)){
+                    clearInterval(gameLoop);
+                    alert('Game Over! Score: '+score);
+                    return;
+                }
+                
+                snake.unshift(head);
+                
+                if(head.x===food.x&&head.y===food.y){
+                    score+=10;
+                    scoreEl.textContent='Score: '+score;
+                    food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};
+                } else {
+                    snake.pop();
+                }
+                
+                ctx.fillStyle='#000';
+                ctx.fillRect(0,0,400,400);
+                ctx.fillStyle='#0f0';
+                snake.forEach(s=>ctx.fillRect(s.x*20,s.y*20,18,18));
+                ctx.fillStyle='#f00';
+                ctx.fillRect(food.x*20,food.y*20,18,18);
+            }, 100);
+        }
+        
+        function initFlappy() {
+            const canvas = document.getElementById('flappyCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            let bird = {x:50,y:300,vel:0};
+            let pipes = [];
+            let score = 0;
+            let gameRunning = true;
+            
+            document.onclick = () => { if(gameRunning) bird.vel = -12; };
+            
+            const gameLoop = setInterval(() => {
+                if(!gameRunning) return;
+                
+                bird.vel += 0.5;
+                bird.y += bird.vel;
+                
+                if(bird.y>600||bird.y<0) { gameRunning=false; clearInterval(gameLoop); alert('Game Over! Score: '+score); }
+                
+                if(pipes.length===0||pipes[pipes.length-1].x<200) {
+                    const gap = Math.random()*150+50;
+                    pipes.push({x:400,y:gap});
+                }
+                
+                pipes = pipes.filter(p=>{
+                    p.x-=5;
+                    if(p.x>50&&p.x<70) {
+                        if(bird.y<p.y||bird.y>p.y+120) { gameRunning=false; clearInterval(gameLoop); alert('Game Over! Score: '+score); }
+                        else score++;
+                    }
+                    return p.x>-50;
+                });
+                
+                ctx.fillStyle='#87ceeb';
+                ctx.fillRect(0,0,400,600);
+                ctx.fillStyle='#ffeb3b';
+                ctx.fillRect(bird.x,bird.y,20,20);
+                ctx.fillStyle='#228b22';
+                pipes.forEach(p=>{
+                    ctx.fillRect(p.x,0,50,p.y);
+                    ctx.fillRect(p.x,p.y+120,50,600-p.y-120);
+                });
+            }, 30);
+        }
+        
+        function initPong() {
+            const canvas = document.getElementById('pongCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            let paddles = [{x:10,y:130,w:10,h:40},{x:380,y:130,w:10,h:40}];
+            let ball = {x:200,y:150,vx:3,vy:3,r:5};
+            let scores = [0,0];
+            
+            document.onkeydown = (e) => {
+                if(e.key==='ArrowUp'&&paddles[1].y>0) paddles[1].y-=10;
+                if(e.key==='ArrowDown'&&paddles[1].y<260) paddles[1].y+=10;
+            };
+            
+            setInterval(() => {
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                
+                if(ball.y-ball.r<0||ball.y+ball.r>300) ball.vy*=-1;
+                
+                paddles.forEach((p,i) => {
+                    if(ball.x-ball.r<p.x+p.w&&ball.y>p.y&&ball.y<p.y+p.h) ball.vx*=-1;
+                });
+                
+                if(ball.x<0) { scores[1]++; ball={x:200,y:150,vx:3,vy:3,r:5}; }
+                if(ball.x>400) { scores[0]++; ball={x:200,y:150,vx:3,vy:3,r:5}; }
+                
+                ctx.fillStyle='#000';
+                ctx.fillRect(0,0,400,300);
+                ctx.fillStyle='#fff';
+                paddles.forEach(p=>ctx.fillRect(p.x,p.y,p.w,p.h));
+                ctx.beginPath();
+                ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
+                ctx.fill();
+                ctx.font='20px Arial';
+                ctx.fillText(scores[0],50,30);
+                ctx.fillText(scores[1],330,30);
+            }, 30);
+        }
+        
+        function init2048() {
+            const div = document.getElementById('game2048');
+            let grid = Array(16).fill(0);
+            grid[0] = 2;
+            grid[15] = 2;
+            
+            function render() {
+                div.innerHTML = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">';
+                grid.forEach(val => {
+                    div.innerHTML += `<div style="width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:${val?'#'+Math.floor(Math.random()*16777215).toString(16):'#ccc'};color:#fff;font-size:24px;font-weight:bold;border-radius:5px;">${val||''}</div>`;
+                });
+                div.innerHTML += '</div>';
+            }
+            
+            render();
+            document.onkeydown = (e) => {
+                if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) {
+                    alert('2048 demo - full game coming soon!');
+                }
+            };
+        }
+        
+        closeBtn.onclick = () => { modal.style.display = 'none'; };
+        window.onclick = (e) => { if(e.target===modal) modal.style.display = 'none'; };
+    </script>
+</body>
+</html>
