@@ -4,74 +4,82 @@
 <title>Games</title>
 <style>
 body { background: #667eea; color: white; font-family: Arial; padding: 20px; text-align: center; margin: 0; }
-h1 { margin: 0 0 30px 0; }
+h1 { margin: 0 0 30px 0; font-size: 2.5em; }
 .menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; }
-.card { background: white; color: #333; padding: 20px; border-radius: 10px; text-decoration: none; font-weight: bold; cursor: pointer; display: inline-block; width: 100%; font-size: 14px; }
-.card:hover { background: #f0f0f0; }
-.game-page { display: none; }
-.game-page:target { display: block; }
-#menu { display: block; }
-#menu:target { display: none; }
+.card { background: white; color: #333; padding: 30px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; border: none; transition: all 0.2s; }
+.card:hover { background: #f0f0f0; transform: scale(1.05); }
+.page { display: none; }
+.page.active { display: block; }
 canvas { background: black; display: block; margin: 20px auto; border: 2px solid white; max-width: 100%; }
 .info { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px; }
-a.back { color: white; text-decoration: none; margin-top: 20px; display: inline-block; padding: 10px 20px; background: rgba(0,0,0,0.3); border-radius: 5px; }
-a.back:hover { background: rgba(0,0,0,0.5); }
+.back { color: white; text-decoration: none; margin-top: 20px; display: inline-block; padding: 10px 20px; background: rgba(0,0,0,0.3); border-radius: 5px; border: none; cursor: pointer; font-size: 14px; }
+.back:hover { background: rgba(0,0,0,0.5); }
+p { margin: 10px 0; }
 </style>
 </head>
 <body>
 
-<div id="menu">
+<div id="menuPage" class="page active">
 <h1>🎮 Games</h1>
 <div class="menu">
-<a href="#snake" class="card">🐍 Snake</a>
-<a href="#flappy" class="card">🐦 Flappy</a>
-<a href="#pong" class="card">🏓 Pong</a>
-<a href="#tag" class="card">🏃 Tag</a>
+<button class="card" onclick="showPage('snake')">🐍 Snake</button>
+<button class="card" onclick="showPage('flappy')">🐦 Flappy</button>
+<button class="card" onclick="showPage('pong')">🏓 Pong</button>
+<button class="card" onclick="showPage('tag')">🏃 Tag</button>
 </div>
 </div>
 
-<div id="snake" class="game-page">
+<div id="snakePage" class="page">
+<button class="back" onclick="showPage('menu')">← Back to Menu</button>
 <h2>🐍 Snake Game</h2>
 <p>Arrow Keys to move • Don't hit walls or yourself!</p>
 <canvas id="snakeCanvas" width="400" height="400"></canvas>
-<div class="info" id="snakeInfo">Loading...</div>
-<a href="#menu" class="back">← Back to Menu</a>
+<div class="info" id="snakeInfo">Use arrow keys to play</div>
 </div>
 
-<div id="flappy" class="game-page">
+<div id="flappyPage" class="page">
+<button class="back" onclick="showPage('menu')">← Back to Menu</button>
 <h2>🐦 Flappy Bird</h2>
 <p>Click or press Space to jump</p>
 <canvas id="flappyCanvas" width="400" height="600"></canvas>
-<div class="info" id="flappyInfo">Loading...</div>
-<a href="#menu" class="back">← Back to Menu</a>
+<div class="info" id="flappyInfo">Click to jump!</div>
 </div>
 
-<div id="pong" class="game-page">
+<div id="pongPage" class="page">
+<button class="back" onclick="showPage('menu')">← Back to Menu</button>
 <h2>🏓 Pong</h2>
 <p>P1: W/S • P2: Arrow Up/Down</p>
 <canvas id="pongCanvas" width="600" height="400"></canvas>
-<div class="info" id="pongInfo">Loading...</div>
-<a href="#menu" class="back">← Back to Menu</a>
+<div class="info" id="pongInfo">Use keys to play</div>
 </div>
 
-<div id="tag" class="game-page">
+<div id="tagPage" class="page">
+<button class="back" onclick="showPage('menu')">← Back to Menu</button>
 <h2>🏃 Tag Game (4 Players)</h2>
 <p>P1:WASD • P2:↑↓←→ • P3:IJKL • P4:Numpad(8246)</p>
 <canvas id="tagCanvas" width="600" height="400"></canvas>
 <div class="info" id="tagInfo">Try to tag other players!</div>
-<a href="#menu" class="back">← Back to Menu</a>
 </div>
 
-<script nonce="inline">
-if(window.location.hash === '#snake') startSnake();
-if(window.location.hash === '#flappy') startFlappy();
-if(window.location.hash === '#pong') startPong();
-if(window.location.hash === '#tag') startTag();
+<script>
+let currentGame = null;
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(page + 'Page').classList.add('active');
+  
+  if(currentGame) clearInterval(currentGame);
+  
+  if(page === 'snake') startSnake();
+  if(page === 'flappy') startFlappy();
+  if(page === 'pong') startPong();
+  if(page === 'tag') startTag();
+}
 
 function startSnake() {
 const c = document.getElementById('snakeCanvas');
 const ctx = c.getContext('2d');
-let s = [{x:10,y:10}], f = {x:15,y:15}, dx = 1, dy = 0, score = 0;
+let s = [{x:10,y:10}], f = {x:15,y:15}, dx = 1, dy = 0, score = 0, gameRunning = true;
 
 document.onkeydown = (e) => {
 if(e.key === 'ArrowUp' && dy === 0) dx = 0, dy = -1;
@@ -80,9 +88,10 @@ if(e.key === 'ArrowLeft' && dx === 0) dx = -1, dy = 0;
 if(e.key === 'ArrowRight' && dx === 0) dx = 1, dy = 0;
 };
 
-function update() {
+currentGame = setInterval(function update() {
+if(!gameRunning) return;
 let h = {x:s[0].x+dx, y:s[0].y+dy};
-if(h.x<0||h.x>19||h.y<0||h.y>19||s.some(p=>p.x===h.x&&p.y===h.y)) { document.getElementById('snakeInfo').textContent = 'Game Over! Score: '+score; return; }
+if(h.x<0||h.x>19||h.y<0||h.y>19||s.some(p=>p.x===h.x&&p.y===h.y)) { gameRunning = false; document.getElementById('snakeInfo').textContent = 'Game Over! Score: '+score; clearInterval(currentGame); return; }
 s.unshift(h);
 if(h.x===f.x&&h.y===f.y) { score++; f = {x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)}; } else s.pop();
 
@@ -90,29 +99,29 @@ ctx.fillStyle = '#000'; ctx.fillRect(0,0,400,400);
 ctx.fillStyle = '#0f0'; s.forEach(p => ctx.fillRect(p.x*20+1,p.y*20+1,18,18));
 ctx.fillStyle = '#f00'; ctx.fillRect(f.x*20+1,f.y*20+1,18,18);
 ctx.fillStyle = '#fff'; ctx.font = '16px Arial'; ctx.fillText('Score: '+score,10,25);
-setTimeout(update, 100);
-}
-update();
+}, 100);
 }
 
 function startFlappy() {
 const c = document.getElementById('flappyCanvas');
 const ctx = c.getContext('2d');
-let b = {y:300,v:0}, p = [], score = 0;
+let b = {y:300,v:0}, p = [], score = 0, gameRunning = true;
 
-document.onkeydown = (e) => {if(e.code==='Space') b.v = -12;};
-document.onmousedown = () => b.v = -12;
+const jump = () => {if(gameRunning) b.v = -12;};
+document.onkeydown = (e) => {if(e.code==='Space') jump();};
+document.onmousedown = jump;
 
-function update() {
+currentGame = setInterval(function update() {
+if(!gameRunning) return;
 b.v += 0.6; b.y += b.v;
-if(b.y > 600 || b.y < 0) { document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; return; }
+if(b.y > 600 || b.y < 0) { gameRunning = false; document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; clearInterval(currentGame); return; }
 
 if(p.length === 0 || p[p.length-1].x < 150) p.push({x:400, y:Math.random()*250+50});
 
 p = p.filter(pipe => {
 pipe.x -= 5;
 if(pipe.x + 60 < 0) { score++; return false; }
-if(50 > pipe.x && 50 < pipe.x+60) if(b.y < pipe.y || b.y > pipe.y+120) { document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; return false; }
+if(50 > pipe.x && 50 < pipe.x+60) if(b.y < pipe.y || b.y > pipe.y+120) { gameRunning = false; document.getElementById('flappyInfo').textContent = 'Game Over! Score: '+score; clearInterval(currentGame); return false; }
 return true;
 });
 
@@ -120,9 +129,7 @@ ctx.fillStyle = '#87ceeb'; ctx.fillRect(0,0,400,600);
 ctx.fillStyle = '#228b22'; p.forEach(pipe => { ctx.fillRect(pipe.x,0,60,pipe.y); ctx.fillRect(pipe.x,pipe.y+120,60,600); });
 ctx.fillStyle = '#ffeb3b'; ctx.fillRect(40,b.y-10,20,20);
 ctx.fillStyle = '#fff'; ctx.font = '20px Arial'; ctx.fillText('Score: '+score,20,40);
-setTimeout(update, 30);
-}
-update();
+}, 30);
 }
 
 function startPong() {
@@ -133,7 +140,7 @@ let p1 = {y:175,h:50}, p2 = {y:175,h:50}, ball = {x:300,y:200,vx:4,vy:4,r:8}, sc
 document.onkeydown = (e) => keys[e.key] = true;
 document.onkeyup = (e) => keys[e.key] = false;
 
-function update() {
+currentGame = setInterval(function update() {
 if(keys['w'] && p1.y > 0) p1.y -= 6;
 if(keys['s'] && p1.y + p1.h < 400) p1.y += 6;
 if(keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
@@ -153,9 +160,7 @@ ctx.fillStyle = '#fff';
 ctx.fillRect(10,p1.y,10,p1.h); ctx.fillRect(580,p2.y,10,p2.h);
 ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
 ctx.font = '24px Arial'; ctx.fillText(score[0],100,50); ctx.fillText(score[1],500,50);
-setTimeout(update, 30);
-}
-update();
+}, 30);
 }
 
 function startTag() {
@@ -171,7 +176,7 @@ let players = [
 document.onkeydown = (e) => keys[e.key] = true;
 document.onkeyup = (e) => keys[e.key] = false;
 
-function update() {
+currentGame = setInterval(function update() {
 players.forEach(p => {
 if(keys[p.keys.left] && p.x > 0) p.x -= 4;
 if(keys[p.keys.right] && p.x < 580) p.x += 4;
@@ -196,9 +201,7 @@ ctx.fillRect(p.x,p.y,p.size,p.size);
 ctx.fillStyle = '#fff'; ctx.font = '14px Arial';
 ctx.fillText('P1:Red P2:Blue P3:Green P4:Yellow', 20, 30);
 if(tagged >= 0) ctx.fillText('P'+(tagged+1)+' IS TAGGED!', 250, 30);
-setTimeout(update, 30);
-}
-update();
+}, 30);
 }
 </script>
 </body>
