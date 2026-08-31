@@ -3,90 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub Pro</title>
+    <title>Game Hub</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
             padding: 20px;
+            min-height: 100vh;
         }
         
-        .container {
-            max-width: 1200px;
+        h1 { color: white; text-align: center; margin-bottom: 10px; font-size: 2.5em; }
+        p { color: white; text-align: center; margin-bottom: 40px; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-        
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .game-card {
+        .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
             transition: transform 0.2s;
         }
         
-        .game-card:hover {
-            transform: scale(1.05);
-        }
+        .card:hover { transform: scale(1.05); }
         
-        .game-image {
+        .emoji {
             width: 100%;
             height: 150px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 5em;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
-        .game-info {
+        .title {
             padding: 15px;
             text-align: center;
-        }
-        
-        .game-info h3 {
-            margin-bottom: 8px;
+            font-weight: bold;
             color: #333;
         }
         
-        .play-btn {
-            width: 100%;
+        button {
+            width: 90%;
+            margin: 10px auto;
             padding: 10px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
+            display: block;
             font-weight: bold;
         }
         
-        .play-btn:hover {
-            background: #764ba2;
-        }
+        button:hover { background: #764ba2; }
         
         .modal {
             display: none;
@@ -95,391 +75,287 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            background: rgba(0,0,0,0.9);
+            z-index: 999;
             align-items: center;
             justify-content: center;
         }
         
-        .modal.active {
-            display: flex;
-        }
+        .modal.show { display: flex; }
         
         .modal-content {
             background: white;
-            border-radius: 12px;
             padding: 20px;
-            max-width: 95vw;
-            max-height: 95vh;
-            overflow: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 28px;
-            cursor: pointer;
-            color: white;
-            z-index: 1001;
-        }
-        
-        .modal-close:hover {
-            color: #ccc;
-        }
-        
-        .game-title {
+            border-radius: 10px;
             text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
         }
         
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border: 2px solid #333;
-            background: #000;
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #333;
+            background: none;
+            border: none;
+            width: auto;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎮 Game Hub Pro</h1>
-            <p style="color: white; font-size: 18px;">Click any game to play!</p>
-        </header>
+    <h1>🎮 Game Hub</h1>
+    <p>Click a game to play!</p>
+    
+    <div class="grid">
+        <div class="card" onclick="playSnake()">
+            <div class="emoji">🐍</div>
+            <div class="title">Snake</div>
+            <button>Play</button>
+        </div>
         
-        <div class="game-grid">
-            <div class="game-card" onclick="playSnake()">
-                <div class="game-image">🐍</div>
-                <div class="game-info">
-                    <h3>Snake</h3>
-                    <button class="play-btn">Play</button>
-                </div>
-            </div>
-            
-            <div class="game-card" onclick="playFlappy()">
-                <div class="game-image">🐦</div>
-                <div class="game-info">
-                    <h3>Flappy Bird</h3>
-                    <button class="play-btn">Play</button>
-                </div>
-            </div>
-            
-            <div class="game-card" onclick="playPong()">
-                <div class="game-image">🏓</div>
-                <div class="game-info">
-                    <h3>Pong</h3>
-                    <button class="play-btn">Play</button>
-                </div>
-            </div>
-            
-            <div class="game-card" onclick="playBreakout()">
-                <div class="game-image">🧱</div>
-                <div class="game-info">
-                    <h3>Breakout</h3>
-                    <button class="play-btn">Play</button>
-                </div>
-            </div>
+        <div class="card" onclick="playFlappy()">
+            <div class="emoji">🐦</div>
+            <div class="title">Flappy Bird</div>
+            <button>Play</button>
+        </div>
+        
+        <div class="card" onclick="playPong()">
+            <div class="emoji">🏓</div>
+            <div class="title">Pong</div>
+            <button>Play</button>
+        </div>
+        
+        <div class="card" onclick="playBreakout()">
+            <div class="emoji">🧱</div>
+            <div class="title">Breakout</div>
+            <button>Play</button>
         </div>
     </div>
     
     <div id="modal" class="modal">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
         <div class="modal-content">
-            <h2 class="game-title" id="modalTitle"></h2>
-            <div id="gameArea"></div>
+            <button class="close-btn" onclick="closeGame()">&times;</button>
+            <h2 id="title"></h2>
+            <div id="game"></div>
         </div>
     </div>
 
     <script>
-        function openModal() {
-            document.getElementById('modal').classList.add('active');
-        }
-        
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
+        function closeGame() { 
+            document.getElementById('modal').classList.remove('show');
             document.onkeydown = null;
             document.onmousemove = null;
-            document.ontouchstart = null;
         }
         
         function playSnake() {
-            document.getElementById('modalTitle').textContent = '🐍 Snake Game';
-            document.getElementById('gameArea').innerHTML = '<canvas id="snakeCanvas"></canvas>';
-            openModal();
+            document.getElementById('title').textContent = '🐍 Snake';
+            document.getElementById('game').innerHTML = '<canvas id="c" width="400" height="400"></canvas><p>Use Arrow Keys</p>';
+            document.getElementById('modal').classList.add('show');
             
-            const canvas = document.getElementById('snakeCanvas');
-            canvas.width = 400;
-            canvas.height = 400;
-            const ctx = canvas.getContext('2d');
-            
-            let snake = [{x: 10, y: 10}];
-            let food = {x: 15, y: 15};
-            let dx = 1, dy = 0;
-            let score = 0;
-            let gameRunning = true;
-            const gridSize = 20;
+            const c = document.getElementById('c');
+            const ctx = c.getContext('2d');
+            let s = [{x:10,y:10}], f = {x:15,y:15}, dx = 1, dy = 0, score = 0;
             
             document.onkeydown = (e) => {
-                if (e.key === 'ArrowUp' && dy === 0) {dx = 0; dy = -1;}
-                if (e.key === 'ArrowDown' && dy === 0) {dx = 0; dy = 1;}
-                if (e.key === 'ArrowLeft' && dx === 0) {dx = -1; dy = 0;}
-                if (e.key === 'ArrowRight' && dx === 0) {dx = 1; dy = 0;}
+                if(e.key === 'ArrowUp' && dy === 0) dx = 0, dy = -1;
+                if(e.key === 'ArrowDown' && dy === 0) dx = 0, dy = 1;
+                if(e.key === 'ArrowLeft' && dx === 0) dx = -1, dy = 0;
+                if(e.key === 'ArrowRight' && dx === 0) dx = 1, dy = 0;
             };
             
-            const gameLoop = setInterval(() => {
-                if (!gameRunning) return;
-                
-                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-                
-                if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-                    gameRunning = false;
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    clearInterval(gameLoop);
+            let loop = setInterval(() => {
+                let h = {x:s[0].x+dx, y:s[0].y+dy};
+                if(h.x<0||h.x>19||h.y<0||h.y>19||s.some(p=>p.x===h.x&&p.y===h.y)) {
+                    clearInterval(loop);
+                    alert('Game Over! Score: '+score);
+                    closeGame();
                     return;
                 }
-                
-                if (snake.some(s => s.x === head.x && s.y === head.y)) {
-                    gameRunning = false;
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    clearInterval(gameLoop);
-                    return;
-                }
-                
-                snake.unshift(head);
-                
-                if (head.x === food.x && head.y === food.y) {
+                s.unshift(h);
+                if(h.x===f.x&&h.y===f.y) {
                     score++;
-                    food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
-                } else {
-                    snake.pop();
-                }
+                    f = {x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};
+                } else s.pop();
                 
-                // Draw
                 ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+                ctx.fillRect(0,0,400,400);
                 ctx.fillStyle = '#0f0';
-                snake.forEach(s => ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2));
-                
+                s.forEach(p => ctx.fillRect(p.x*20+1,p.y*20+1,18,18));
                 ctx.fillStyle = '#f00';
-                ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
-                
+                ctx.fillRect(f.x*20+1,f.y*20+1,18,18);
                 ctx.fillStyle = '#fff';
                 ctx.font = '16px Arial';
-                ctx.fillText('Score: ' + score, 10, 25);
+                ctx.fillText('Score: '+score,10,25);
             }, 100);
         }
         
         function playFlappy() {
-            document.getElementById('modalTitle').textContent = '🐦 Flappy Bird';
-            document.getElementById('gameArea').innerHTML = '<canvas id="flappyCanvas"></canvas>';
-            openModal();
+            document.getElementById('title').textContent = '🐦 Flappy Bird';
+            document.getElementById('game').innerHTML = '<canvas id="c" width="400" height="600"></canvas><p>Click or Space to jump</p>';
+            document.getElementById('modal').classList.add('show');
             
-            const canvas = document.getElementById('flappyCanvas');
-            canvas.width = 400;
-            canvas.height = 600;
-            const ctx = canvas.getContext('2d');
+            const c = document.getElementById('c');
+            const ctx = c.getContext('2d');
+            let b = {y:300,v:0}, p = [], score = 0;
             
-            let bird = {y: 300, vel: 0};
-            let pipes = [];
-            let score = 0;
-            let gameRunning = true;
-            
-            const jump = () => {
-                if (gameRunning) bird.vel = -12;
-            };
-            
-            document.onkeydown = (e) => {if (e.code === 'Space') jump();};
+            const jump = () => b.v = -12;
+            document.onkeydown = (e) => {if(e.code==='Space') jump();};
             document.onmousedown = jump;
             
-            const gameLoop = setInterval(() => {
-                if (!gameRunning) return;
+            let loop = setInterval(() => {
+                b.v += 0.6;
+                b.y += b.v;
                 
-                bird.vel += 0.6;
-                bird.y += bird.vel;
-                
-                if (bird.y > 600 || bird.y < 0) {
-                    gameRunning = false;
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    clearInterval(gameLoop);
+                if(b.y > 600 || b.y < 0) {
+                    clearInterval(loop);
+                    alert('Game Over! Score: '+score);
+                    closeGame();
                     return;
                 }
                 
-                if (pipes.length === 0 || pipes[pipes.length - 1].x < 150) {
-                    pipes.push({x: 400, y: Math.random() * 250 + 50});
+                if(p.length === 0 || p[p.length-1].x < 150) {
+                    p.push({x:400, y:Math.random()*250+50});
                 }
                 
-                pipes = pipes.filter(p => {
-                    p.x -= 5;
-                    if (p.x + 60 < 0) {
-                        score++;
-                        return false;
-                    }
-                    
-                    if (50 > p.x && 50 < p.x + 60) {
-                        if (bird.y < p.y || bird.y > p.y + 120) {
-                            gameRunning = false;
-                            alert('Game Over! Score: ' + score);
-                            closeModal();
-                            clearInterval(gameLoop);
+                p = p.filter(pipe => {
+                    pipe.x -= 5;
+                    if(pipe.x + 60 < 0) { score++; return false; }
+                    if(50 > pipe.x && 50 < pipe.x+60) {
+                        if(b.y < pipe.y || b.y > pipe.y+120) {
+                            clearInterval(loop);
+                            alert('Game Over! Score: '+score);
+                            closeGame();
                         }
                     }
                     return true;
                 });
                 
                 ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(0, 0, 400, 600);
-                
+                ctx.fillRect(0,0,400,600);
                 ctx.fillStyle = '#228b22';
-                pipes.forEach(p => {
-                    ctx.fillRect(p.x, 0, 60, p.y);
-                    ctx.fillRect(p.x, p.y + 120, 60, 600);
+                p.forEach(pipe => {
+                    ctx.fillRect(pipe.x,0,60,pipe.y);
+                    ctx.fillRect(pipe.x,pipe.y+120,60,600);
                 });
-                
                 ctx.fillStyle = '#ffeb3b';
-                ctx.fillRect(40, bird.y - 10, 20, 20);
-                
+                ctx.fillRect(40,b.y-10,20,20);
                 ctx.fillStyle = '#fff';
                 ctx.font = '20px Arial';
-                ctx.fillText('Score: ' + score, 20, 40);
+                ctx.fillText('Score: '+score,20,40);
             }, 30);
         }
         
         function playPong() {
-            document.getElementById('modalTitle').textContent = '🏓 Pong';
-            document.getElementById('gameArea').innerHTML = '<canvas id="pongCanvas"></canvas>';
-            openModal();
+            document.getElementById('title').textContent = '🏓 Pong';
+            document.getElementById('game').innerHTML = '<canvas id="c" width="600" height="400"></canvas><p>P1: W/S | P2: ↑/↓</p>';
+            document.getElementById('modal').classList.add('show');
             
-            const canvas = document.getElementById('pongCanvas');
-            canvas.width = 600;
-            canvas.height = 400;
-            const ctx = canvas.getContext('2d');
+            const c = document.getElementById('c');
+            const ctx = c.getContext('2d');
+            let p1 = {y:175,h:50}, p2 = {y:175,h:50}, ball = {x:300,y:200,vx:4,vy:4,r:8}, score = [0,0];
+            let keys = {};
             
-            let p1 = {y: 175, height: 50};
-            let p2 = {y: 175, height: 50};
-            let ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};
-            let score = [0, 0];
+            document.onkeydown = (e) => keys[e.key] = true;
+            document.onkeyup = (e) => keys[e.key] = false;
             
-            const keys = {};
-            document.onkeydown = (e) => {keys[e.key] = true;};
-            document.onkeyup = (e) => {keys[e.key] = false;};
-            
-            const gameLoop = setInterval(() => {
-                if (keys['w'] && p1.y > 0) p1.y -= 6;
-                if (keys['s'] && p1.y + p1.height < 400) p1.y += 6;
-                if (keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
-                if (keys['ArrowDown'] && p2.y + p2.height < 400) p2.y += 6;
+            setInterval(() => {
+                if(keys['w'] && p1.y > 0) p1.y -= 6;
+                if(keys['s'] && p1.y + p1.h < 400) p1.y += 6;
+                if(keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
+                if(keys['ArrowDown'] && p2.y + p2.h < 400) p2.y += 6;
                 
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                if (ball.y < ball.r || ball.y > 400 - ball.r) ball.vy *= -1;
+                if(ball.y < ball.r || ball.y > 400-ball.r) ball.vy *= -1;
+                if(ball.x < 20 && ball.y > p1.y && ball.y < p1.y+p1.h) ball.vx *= -1;
+                if(ball.x > 580 && ball.y > p2.y && ball.y < p2.y+p2.h) ball.vx *= -1;
                 
-                if (ball.x < 20 && ball.y > p1.y && ball.y < p1.y + p1.height) ball.vx *= -1;
-                if (ball.x > 580 && ball.y > p2.y && ball.y < p2.y + p2.height) ball.vx *= -1;
-                
-                if (ball.x < 0) {score[1]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
-                if (ball.x > 600) {score[0]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
+                if(ball.x < 0) {score[1]++; ball = {x:300,y:200,vx:4,vy:4,r:8};}
+                if(ball.x > 600) {score[0]++; ball = {x:300,y:200,vx:4,vy:4,r:8};}
                 
                 ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, 600, 400);
-                
+                ctx.fillRect(0,0,600,400);
                 ctx.fillStyle = '#fff';
-                ctx.fillRect(10, p1.y, 10, p1.height);
-                ctx.fillRect(580, p2.y, 10, p2.height);
+                ctx.fillRect(10,p1.y,10,p1.h);
+                ctx.fillRect(580,p2.y,10,p2.h);
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
                 ctx.fill();
-                
                 ctx.font = '24px Arial';
-                ctx.fillText(score[0], 100, 50);
-                ctx.fillText(score[1], 500, 50);
+                ctx.fillText(score[0],100,50);
+                ctx.fillText(score[1],500,50);
             }, 30);
         }
         
         function playBreakout() {
-            document.getElementById('modalTitle').textContent = '🧱 Breakout';
-            document.getElementById('gameArea').innerHTML = '<canvas id="breakoutCanvas"></canvas>';
-            openModal();
+            document.getElementById('title').textContent = '🧱 Breakout';
+            document.getElementById('game').innerHTML = '<canvas id="c" width="500" height="600"></canvas><p>Move mouse to control paddle</p>';
+            document.getElementById('modal').classList.add('show');
             
-            const canvas = document.getElementById('breakoutCanvas');
-            canvas.width = 500;
-            canvas.height = 600;
-            const ctx = canvas.getContext('2d');
+            const c = document.getElementById('c');
+            const ctx = c.getContext('2d');
+            let pad = {x:225,y:560,w:50,h:15}, ball = {x:250,y:545,vx:3,vy:-3,r:6};
+            let bricks = [], score = 0;
             
-            let paddle = {x: 225, y: 560, width: 50, height: 15};
-            let ball = {x: 250, y: 545, vx: 3, vy: -3, r: 6};
-            let bricks = [];
-            let score = 0;
-            
-            for (let r = 0; r < 4; r++) {
-                for (let c = 0; c < 8; c++) {
-                    bricks.push({x: 20 + c * 60, y: 40 + r * 20, w: 50, h: 15, active: true});
+            for(let r=0; r<4; r++) {
+                for(let col=0; col<8; col++) {
+                    bricks.push({x:20+col*60,y:40+r*20,w:50,h:15,active:true});
                 }
             }
             
             document.onmousemove = (e) => {
-                const rect = canvas.getBoundingClientRect();
-                paddle.x = Math.max(0, Math.min(450, e.clientX - rect.left - paddle.width / 2));
+                const rect = c.getBoundingClientRect();
+                pad.x = Math.max(0,Math.min(450,e.clientX-rect.left-pad.w/2));
             };
             
-            const gameLoop = setInterval(() => {
+            setInterval(() => {
                 ball.x += ball.vx;
                 ball.y += ball.vy;
                 
-                if (ball.x < ball.r || ball.x > 500 - ball.r) ball.vx *= -1;
-                if (ball.y < ball.r) ball.vy *= -1;
+                if(ball.x < ball.r || ball.x > 500-ball.r) ball.vx *= -1;
+                if(ball.y < ball.r) ball.vy *= -1;
+                if(ball.y > 585 && ball.x > pad.x && ball.x < pad.x+pad.w) ball.vy *= -1;
+                if(ball.y > 600) { alert('Game Over! Score: '+score); closeGame(); return; }
                 
-                if (ball.y > 585 && ball.x > paddle.x && ball.x < paddle.x + paddle.width) ball.vy *= -1;
-                
-                if (ball.y > 600) {
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    clearInterval(gameLoop);
-                    return;
-                }
-                
-                bricks.forEach(brick => {
-                    if (!brick.active) return;
-                    if (ball.x > brick.x && ball.x < brick.x + brick.w && ball.y > brick.y && ball.y < brick.y + brick.h) {
-                        brick.active = false;
+                bricks.forEach(b => {
+                    if(!b.active) return;
+                    if(ball.x > b.x && ball.x < b.x+b.w && ball.y > b.y && ball.y < b.y+b.h) {
+                        b.active = false;
                         score += 10;
                         ball.vy *= -1;
                     }
                 });
                 
                 ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, 500, 600);
-                
-                bricks.forEach(brick => {
-                    if (brick.active) {
+                ctx.fillRect(0,0,500,600);
+                bricks.forEach(b => {
+                    if(b.active) {
                         ctx.fillStyle = '#ff6b6b';
-                        ctx.fillRect(brick.x, brick.y, brick.w, brick.h);
+                        ctx.fillRect(b.x,b.y,b.w,b.h);
                     }
                 });
-                
                 ctx.fillStyle = '#00ff88';
-                ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-                
+                ctx.fillRect(pad.x,pad.y,pad.w,pad.h);
                 ctx.fillStyle = '#ffeb3b';
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+                ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);
                 ctx.fill();
-                
                 ctx.fillStyle = '#fff';
                 ctx.font = '20px Arial';
-                ctx.fillText('Score: ' + score, 20, 30);
+                ctx.fillText('Score: '+score,20,30);
             }, 30);
         }
         
         window.onclick = (e) => {
-            if (e.target === document.getElementById('modal')) closeModal();
+            if(e.target === document.getElementById('modal')) closeGame();
         };
     </script>
 </body>
