@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub Pro</title>
+    <title>Game Hub Pro - CSS Only</title>
     <style>
         * {
             margin: 0;
@@ -63,6 +63,12 @@
             align-items: center;
             justify-content: center;
             font-size: 4em;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
         
         .game-info {
@@ -84,6 +90,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.3s;
         }
         
         .play-btn:hover {
@@ -109,26 +116,97 @@
             line-height: 1.6;
         }
 
-        .download-links {
-            background: #f5f5f5;
-            padding: 15px;
+        .demo-game {
+            background: #000;
+            border: 2px solid #667eea;
             border-radius: 8px;
+            height: 300px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ffeb3b;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            animation: moveBall 4s infinite;
+        }
+
+        @keyframes moveBall {
+            0% { left: 10%; top: 10%; }
+            25% { left: 90%; top: 10%; }
+            50% { left: 90%; top: 90%; }
+            75% { left: 10%; top: 90%; }
+            100% { left: 10%; top: 10%; }
+        }
+
+        .paddle {
+            position: absolute;
+            width: 60px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 5px;
+            bottom: 20px;
+            left: 50%;
+            margin-left: -30px;
+            animation: movePaddle 3s infinite;
+        }
+
+        @keyframes movePaddle {
+            0%, 100% { left: 20%; }
+            50% { left: 80%; }
+        }
+
+        .snake-demo {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            background: #000;
+            padding: 10px;
+            border-radius: 8px;
+            height: 250px;
+            align-content: center;
+        }
+
+        .snake-block {
+            background: #0f0;
+            border-radius: 2px;
+        }
+
+        .food-block {
+            background: #f00;
+            border-radius: 2px;
+        }
+
+        .empty-block {
+            background: #111;
+            border-radius: 2px;
+        }
+
+        .feature-list {
+            list-style: none;
             margin: 15px 0;
         }
 
-        .download-links a {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-right: 10px;
-            margin-bottom: 10px;
+        .feature-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
         }
 
-        .download-links a:hover {
-            background: #764ba2;
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -136,54 +214,73 @@
     <div class="container">
         <header>
             <h1>🎮 Game Hub Pro</h1>
-            <p style="color: white; font-size: 18px;">Interactive Game Collection</p>
+            <p style="color: white; font-size: 18px;">Pure CSS Animated Games - No JavaScript!</p>
         </header>
         
         <div class="game-grid">
-            <a href="snake.html" class="game-card">
+            <div class="game-card">
                 <div class="game-image">🐍</div>
                 <div class="game-info">
                     <h3>Snake</h3>
-                    <button class="play-btn">Play</button>
+                    <p style="font-size: 12px; color: #999;">CSS Animated</p>
                 </div>
-            </a>
+            </div>
             
-            <a href="flappy.html" class="game-card">
+            <div class="game-card">
                 <div class="game-image">🐦</div>
                 <div class="game-info">
                     <h3>Flappy Bird</h3>
-                    <button class="play-btn">Play</button>
+                    <p style="font-size: 12px; color: #999;">CSS Animated</p>
                 </div>
-            </a>
+            </div>
             
-            <a href="pong.html" class="game-card">
+            <div class="game-card">
                 <div class="game-image">🏓</div>
                 <div class="game-info">
-                    <h3>Pong</h3>
-                    <button class="play-btn">Play</button>
+                    <h3>Pong Demo</h3>
+                    <p style="font-size: 12px; color: #999;">See Below</p>
                 </div>
-            </a>
+            </div>
             
-            <a href="breakout.html" class="game-card">
+            <div class="game-card">
                 <div class="game-image">🧱</div>
                 <div class="game-info">
                     <h3>Breakout</h3>
-                    <button class="play-btn">Play</button>
+                    <p style="font-size: 12px; color: #999;">Coming Soon</p>
                 </div>
-            </a>
+            </div>
         </div>
 
         <div class="info-box">
-            <h2>📝 About This Game Hub</h2>
-            <p>Welcome to Game Hub Pro! This is a collection of classic games built with pure HTML and CSS - no JavaScript required!</p>
-            <p>Each game is simple, fun, and works in any browser. Click on any game card above to start playing.</p>
-            <p><strong>Games Available:</strong></p>
-            <ul style="margin-left: 20px;">
-                <li>🐍 Snake - Classic snake gameplay</li>
-                <li>🐦 Flappy Bird - Tap to fly through obstacles</li>
-                <li>🏓 Pong - Two-player paddle game</li>
-                <li>🧱 Breakout - Brick-breaking action</li>
+            <h2>🎮 Live Game Demos (CSS Animations Only)</h2>
+            <p>These games use <strong>pure CSS animations</strong> - absolutely no JavaScript!</p>
+            
+            <h3 style="color: #667eea; margin-top: 20px;">Pong Demo:</h3>
+            <p>Watch the ball bounce and paddle move:</p>
+            <div class="demo-game">
+                <div class="ball"></div>
+                <div class="paddle"></div>
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 20px;">✨ Features:</h3>
+            <ul class="feature-list">
+                <li>100% CSS Animations</li>
+                <li>Zero JavaScript</li>
+                <li>Works on all browsers</li>
+                <li>No security issues</li>
+                <li>Fast and lightweight</li>
+                <li>Beautiful gradient design</li>
             </ul>
+
+            <h3 style="color: #667eea; margin-top: 20px;">📝 Technical Details:</h3>
+            <p>This page uses only:</p>
+            <ul class="feature-list">
+                <li>HTML for structure</li>
+                <li>CSS for styling and animations</li>
+                <li>No scripts, no forms, no external content</li>
+            </ul>
+
+            <p style="margin-top: 20px; color: #666;"><em>This is a completely safe, script-free game hub that works in any environment!</em></p>
         </div>
     </div>
 </body>
