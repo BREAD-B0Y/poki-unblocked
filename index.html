@@ -44,9 +44,11 @@
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: transform 0.2s;
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
         
         .game-card:hover {
@@ -87,59 +89,46 @@
         .play-btn:hover {
             background: #764ba2;
         }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
+
+        .info-box {
             background: white;
             border-radius: 12px;
             padding: 20px;
-            max-width: 95vw;
-            max-height: 95vh;
-            overflow: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 28px;
-            cursor: pointer;
-            color: white;
-            z-index: 1001;
-        }
-        
-        .modal-close:hover {
-            color: #ccc;
-        }
-        
-        .game-title {
-            text-align: center;
-            margin-bottom: 20px;
+            margin-top: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             color: #333;
         }
-        
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border: 2px solid #333;
-            background: #000;
+
+        .info-box h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info-box p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .download-links {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .download-links a {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .download-links a:hover {
+            background: #764ba2;
         }
     </style>
 </head>
@@ -147,352 +136,55 @@
     <div class="container">
         <header>
             <h1>🎮 Game Hub Pro</h1>
-            <p style="color: white; font-size: 18px;">Click any game to play!</p>
+            <p style="color: white; font-size: 18px;">Interactive Game Collection</p>
         </header>
         
         <div class="game-grid">
-            <div class="game-card">
+            <a href="snake.html" class="game-card">
                 <div class="game-image">🐍</div>
                 <div class="game-info">
                     <h3>Snake</h3>
-                    <button class="play-btn" id="snakeBtn">Play</button>
+                    <button class="play-btn">Play</button>
                 </div>
-            </div>
+            </a>
             
-            <div class="game-card">
+            <a href="flappy.html" class="game-card">
                 <div class="game-image">🐦</div>
                 <div class="game-info">
                     <h3>Flappy Bird</h3>
-                    <button class="play-btn" id="flappyBtn">Play</button>
+                    <button class="play-btn">Play</button>
                 </div>
-            </div>
+            </a>
             
-            <div class="game-card">
+            <a href="pong.html" class="game-card">
                 <div class="game-image">🏓</div>
                 <div class="game-info">
                     <h3>Pong</h3>
-                    <button class="play-btn" id="pongBtn">Play</button>
+                    <button class="play-btn">Play</button>
                 </div>
-            </div>
+            </a>
             
-            <div class="game-card">
+            <a href="breakout.html" class="game-card">
                 <div class="game-image">🧱</div>
                 <div class="game-info">
                     <h3>Breakout</h3>
-                    <button class="play-btn" id="breakoutBtn">Play</button>
+                    <button class="play-btn">Play</button>
                 </div>
-            </div>
+            </a>
+        </div>
+
+        <div class="info-box">
+            <h2>📝 About This Game Hub</h2>
+            <p>Welcome to Game Hub Pro! This is a collection of classic games built with pure HTML and CSS - no JavaScript required!</p>
+            <p>Each game is simple, fun, and works in any browser. Click on any game card above to start playing.</p>
+            <p><strong>Games Available:</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>🐍 Snake - Classic snake gameplay</li>
+                <li>🐦 Flappy Bird - Tap to fly through obstacles</li>
+                <li>🏓 Pong - Two-player paddle game</li>
+                <li>🧱 Breakout - Brick-breaking action</li>
+            </ul>
         </div>
     </div>
-    
-    <div id="modal" class="modal">
-        <span class="modal-close" id="closeBtn">&times;</span>
-        <div class="modal-content">
-            <h2 class="game-title" id="modalTitle"></h2>
-            <div id="gameArea"></div>
-        </div>
-    </div>
-
-    <script>
-        var currentGame = null;
-
-        function openModal() {
-            document.getElementById('modal').classList.add('active');
-        }
-        
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-            if(currentGame) clearInterval(currentGame);
-            document.onkeydown = null;
-            document.onmousemove = null;
-        }
-
-        function playSnake() {
-            document.getElementById('modalTitle').textContent = '🐍 Snake Game';
-            document.getElementById('gameArea').innerHTML = '<canvas id="snakeCanvas"></canvas>';
-            openModal();
-            
-            var canvas = document.getElementById('snakeCanvas');
-            canvas.width = 400;
-            canvas.height = 400;
-            var ctx = canvas.getContext('2d');
-            
-            var snake = [{x: 10, y: 10}];
-            var food = {x: 15, y: 15};
-            var dx = 1, dy = 0;
-            var score = 0;
-            var gameRunning = true;
-            var gridSize = 20;
-            
-            document.onkeydown = function(e) {
-                if (e.key === 'ArrowUp' && dy === 0) {dx = 0; dy = -1;}
-                if (e.key === 'ArrowDown' && dy === 0) {dx = 0; dy = 1;}
-                if (e.key === 'ArrowLeft' && dx === 0) {dx = -1; dy = 0;}
-                if (e.key === 'ArrowRight' && dx === 0) {dx = 1; dy = 0;}
-            };
-            
-            currentGame = setInterval(function() {
-                if (!gameRunning) return;
-                
-                var head = {x: snake[0].x + dx, y: snake[0].y + dy};
-                
-                if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-                    gameRunning = false;
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    return;
-                }
-                
-                for(var i = 0; i < snake.length; i++) {
-                    if (snake[i].x === head.x && snake[i].y === head.y) {
-                        gameRunning = false;
-                        alert('Game Over! Score: ' + score);
-                        closeModal();
-                        return;
-                    }
-                }
-                
-                snake.unshift(head);
-                
-                if (head.x === food.x && head.y === food.y) {
-                    score++;
-                    food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
-                } else {
-                    snake.pop();
-                }
-                
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#0f0';
-                for(var i = 0; i < snake.length; i++) {
-                    ctx.fillRect(snake[i].x * gridSize + 1, snake[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
-                }
-                
-                ctx.fillStyle = '#f00';
-                ctx.fillRect(food.x * gridSize + 1, food.y * gridSize + 1, gridSize - 2, gridSize - 2);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '16px Arial';
-                ctx.fillText('Score: ' + score, 10, 25);
-            }, 100);
-        }
-
-        function playFlappy() {
-            document.getElementById('modalTitle').textContent = '🐦 Flappy Bird';
-            document.getElementById('gameArea').innerHTML = '<canvas id="flappyCanvas"></canvas>';
-            openModal();
-            
-            var canvas = document.getElementById('flappyCanvas');
-            canvas.width = 400;
-            canvas.height = 600;
-            var ctx = canvas.getContext('2d');
-            
-            var bird = {y: 300, vel: 0};
-            var pipes = [];
-            var score = 0;
-            var gameRunning = true;
-            
-            var jump = function() {
-                if (gameRunning) bird.vel = -12;
-            };
-            
-            document.onkeydown = function(e) {
-                if (e.code === 'Space') jump();
-            };
-            document.onmousedown = jump;
-            
-            currentGame = setInterval(function() {
-                if (!gameRunning) return;
-                
-                bird.vel += 0.6;
-                bird.y += bird.vel;
-                
-                if (bird.y > 600 || bird.y < 0) {
-                    gameRunning = false;
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    return;
-                }
-                
-                if (pipes.length === 0 || pipes[pipes.length - 1].x < 150) {
-                    pipes.push({x: 400, y: Math.random() * 250 + 50});
-                }
-                
-                for(var i = pipes.length - 1; i >= 0; i--) {
-                    pipes[i].x -= 5;
-                    if (pipes[i].x + 60 < 0) {
-                        score++;
-                        pipes.splice(i, 1);
-                    } else {
-                        if (50 > pipes[i].x && 50 < pipes[i].x + 60) {
-                            if (bird.y < pipes[i].y || bird.y > pipes[i].y + 120) {
-                                gameRunning = false;
-                                alert('Game Over! Score: ' + score);
-                                closeModal();
-                            }
-                        }
-                    }
-                }
-                
-                ctx.fillStyle = '#87ceeb';
-                ctx.fillRect(0, 0, 400, 600);
-                
-                ctx.fillStyle = '#228b22';
-                for(var i = 0; i < pipes.length; i++) {
-                    ctx.fillRect(pipes[i].x, 0, 60, pipes[i].y);
-                    ctx.fillRect(pipes[i].x, pipes[i].y + 120, 60, 600);
-                }
-                
-                ctx.fillStyle = '#ffeb3b';
-                ctx.fillRect(40, bird.y - 10, 20, 20);
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '20px Arial';
-                ctx.fillText('Score: ' + score, 20, 40);
-            }, 30);
-        }
-
-        function playPong() {
-            document.getElementById('modalTitle').textContent = '🏓 Pong';
-            document.getElementById('gameArea').innerHTML = '<canvas id="pongCanvas"></canvas>';
-            openModal();
-            
-            var canvas = document.getElementById('pongCanvas');
-            canvas.width = 600;
-            canvas.height = 400;
-            var ctx = canvas.getContext('2d');
-            
-            var p1 = {y: 175, height: 50};
-            var p2 = {y: 175, height: 50};
-            var ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};
-            var score = [0, 0];
-            var keys = {};
-            
-            document.onkeydown = function(e) {
-                keys[e.key] = true;
-            };
-            document.onkeyup = function(e) {
-                keys[e.key] = false;
-            };
-            
-            currentGame = setInterval(function() {
-                if (keys['w'] && p1.y > 0) p1.y -= 6;
-                if (keys['s'] && p1.y + p1.height < 400) p1.y += 6;
-                if (keys['ArrowUp'] && p2.y > 0) p2.y -= 6;
-                if (keys['ArrowDown'] && p2.y + p2.height < 400) p2.y += 6;
-                
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-                
-                if (ball.y < ball.r || ball.y > 400 - ball.r) ball.vy *= -1;
-                
-                if (ball.x < 20 && ball.y > p1.y && ball.y < p1.y + p1.height) ball.vx *= -1;
-                if (ball.x > 580 && ball.y > p2.y && ball.y < p2.y + p2.height) ball.vx *= -1;
-                
-                if (ball.x < 0) {score[1]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
-                if (ball.x > 600) {score[0]++; ball = {x: 300, y: 200, vx: 4, vy: 4, r: 8};}
-                
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, 600, 400);
-                
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(10, p1.y, 10, p1.height);
-                ctx.fillRect(580, p2.y, 10, p2.height);
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.font = '24px Arial';
-                ctx.fillText(score[0], 100, 50);
-                ctx.fillText(score[1], 500, 50);
-            }, 30);
-        }
-
-        function playBreakout() {
-            document.getElementById('modalTitle').textContent = '🧱 Breakout';
-            document.getElementById('gameArea').innerHTML = '<canvas id="breakoutCanvas"></canvas>';
-            openModal();
-            
-            var canvas = document.getElementById('breakoutCanvas');
-            canvas.width = 500;
-            canvas.height = 600;
-            var ctx = canvas.getContext('2d');
-            
-            var paddle = {x: 225, y: 560, width: 50, height: 15};
-            var ball = {x: 250, y: 545, vx: 3, vy: -3, r: 6};
-            var bricks = [];
-            var score = 0;
-            
-            for (var r = 0; r < 4; r++) {
-                for (var c = 0; c < 8; c++) {
-                    bricks.push({x: 20 + c * 60, y: 40 + r * 20, w: 50, h: 15, active: true});
-                }
-            }
-            
-            document.onmousemove = function(e) {
-                var rect = canvas.getBoundingClientRect();
-                paddle.x = Math.max(0, Math.min(450, e.clientX - rect.left - paddle.width / 2));
-            };
-            
-            currentGame = setInterval(function() {
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-                
-                if (ball.x < ball.r || ball.x > 500 - ball.r) ball.vx *= -1;
-                if (ball.y < ball.r) ball.vy *= -1;
-                
-                if (ball.y > 585 && ball.x > paddle.x && ball.x < paddle.x + paddle.width) ball.vy *= -1;
-                
-                if (ball.y > 600) {
-                    alert('Game Over! Score: ' + score);
-                    closeModal();
-                    return;
-                }
-                
-                for(var i = 0; i < bricks.length; i++) {
-                    var brick = bricks[i];
-                    if (!brick.active) continue;
-                    if (ball.x > brick.x && ball.x < brick.x + brick.w && ball.y > brick.y && ball.y < brick.y + brick.h) {
-                        brick.active = false;
-                        score += 10;
-                        ball.vy *= -1;
-                    }
-                }
-                
-                ctx.fillStyle = '#000';
-                ctx.fillRect(0, 0, 500, 600);
-                
-                for(var i = 0; i < bricks.length; i++) {
-                    if (bricks[i].active) {
-                        ctx.fillStyle = '#ff6b6b';
-                        ctx.fillRect(bricks[i].x, bricks[i].y, bricks[i].w, bricks[i].h);
-                    }
-                }
-                
-                ctx.fillStyle = '#00ff88';
-                ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
-                
-                ctx.fillStyle = '#ffeb3b';
-                ctx.beginPath();
-                ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = '20px Arial';
-                ctx.fillText('Score: ' + score, 20, 30);
-            }, 30);
-        }
-
-        document.getElementById('snakeBtn').addEventListener('click', playSnake);
-        document.getElementById('flappyBtn').addEventListener('click', playFlappy);
-        document.getElementById('pongBtn').addEventListener('click', playPong);
-        document.getElementById('breakoutBtn').addEventListener('click', playBreakout);
-        document.getElementById('closeBtn').addEventListener('click', closeModal);
-        
-        window.onclick = function(e) {
-            if (e.target === document.getElementById('modal')) closeModal();
-        };
-    </script>
 </body>
 </html>
